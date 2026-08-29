@@ -44,12 +44,12 @@ body {
 
 /* Global Text Selection Styling */
 ::selection {
-  background-color: rgba(59, 130, 246, 0.2);
+  background-color: rgba(59, 130, 246, 0.25);
   color: inherit;
 }
 
 ::-moz-selection {
-  background-color: rgba(59, 130, 246, 0.2);
+  background-color: rgba(59, 130, 246, 0.25);
   color: inherit;
 }
 

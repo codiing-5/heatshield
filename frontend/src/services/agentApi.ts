@@ -62,6 +62,18 @@ export interface RegisteredTool {
   description: string;
 }
 
+export interface ChatMessagePayload {
+  role: 'user' | 'assistant' | 'model' | 'system';
+  text: string;
+}
+
+export interface ChatOptions {
+  history?: ChatMessagePayload[];
+  targetAgent?: string;
+  modelName?: string;
+  temperature?: number;
+}
+
 export const agentApi = {
   async getRoster(): Promise<AgentRosterItem[]> {
     const res = await fetch(`${API_BASE_URL}/api/v1/agents/roster`);
@@ -81,14 +93,22 @@ export const agentApi = {
     return res.json();
   },
 
-  async chat(userMessage: string, activeZone: string, targetAgent: string = 'orchestrator'): Promise<AgentChatResponse> {
+  async chat(
+    userMessage: string, 
+    activeZone: string, 
+    options?: string | ChatOptions
+  ): Promise<AgentChatResponse> {
+    const opts: ChatOptions = typeof options === 'string' ? { targetAgent: options } : (options || {});
     const res = await fetch(`${API_BASE_URL}/api/v1/agents/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_message: userMessage,
         active_zone: activeZone,
-        target_agent: targetAgent,
+        target_agent: opts.targetAgent || 'orchestrator',
+        history: opts.history || [],
+        model_name: opts.modelName || 'gemini-1.5-flash',
+        temperature: opts.temperature ?? 0.75,
       }),
     });
     if (!res.ok) {

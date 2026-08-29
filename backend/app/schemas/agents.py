@@ -41,10 +41,18 @@ class OrchestrationResponse(BaseModel):
     orchestrated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant", "model", "system"]
+    text: str
+
+
 class AgentChatRequest(BaseModel):
     user_message: str = Field(..., description="User question or operational command")
+    history: Optional[List[ChatMessage]] = Field(default=[], description="Full conversation history for multi-turn chat")
     target_agent: Optional[str] = Field("orchestrator", description="Target agent id or orchestrator")
     active_zone: Optional[str] = Field("Sector 7 - Downtown Core", description="Context zone")
+    model_name: Optional[str] = Field("gemini-1.5-flash", description="Underlying AI model")
+    temperature: Optional[float] = Field(0.75, description="Sampling temperature")
 
 
 class AgentChatResponse(BaseModel):

@@ -58,6 +58,8 @@ class ToolRegistry:
                 "surface_temp_c": summary.surface_temp_c,
                 "wet_bulb_temp_c": summary.wet_bulb_temp_c,
                 "heat_index_c": summary.heat_index_c,
+                "relative_humidity_pct": getattr(summary, "relative_humidity_pct", 58.0),
+                "uv_index": getattr(summary, "uv_index", 11.0),
                 "risk_level": summary.risk_level,
                 "total_nodes": nodes.total_nodes,
                 "provenance": summary.provenance.model_dump(),
