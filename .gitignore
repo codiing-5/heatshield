@@ -9,13 +9,11 @@ venv/
 .venv/
 ENV/
 build/
+# Python / Build Artifacts
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -26,6 +24,8 @@ wheels/
 .pytest_cache/
 .coverage
 htmlcov/
+!frontend/src/lib/
+
 
 # Node / Frontend
 node_modules/
