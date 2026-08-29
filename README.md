@@ -13,8 +13,9 @@ An intelligent, autonomous multi-agent urban heat resilience platform leveraging
 
 | Version | Description | Verified Public URL |
 |---|---|---|
-| **Version 1 (Stable)** | Tactical Dark Mode Command Center for municipal incident coordinators | [https://4422c14a39380e44-111-92-126-156.serveousercontent.com](https://4422c14a39380e44-111-92-126-156.serveousercontent.com) |
-| **Version 2 (AI Experience)** | Google-inspired clean conversational heat intelligence assistant & agent studio | [https://ea44cdd33e254571-111-92-126-156.serveousercontent.com](https://ea44cdd33e254571-111-92-126-156.serveousercontent.com) |
+| **Version 1 (Stable)** | Tactical Dark Mode Command Center for municipal incident coordinators | [https://32ef0d9b94e41e1b-111-92-126-156.serveousercontent.com](https://32ef0d9b94e41e1b-111-92-126-156.serveousercontent.com) |
+| **Version 2 (AI Experience)** | Google-inspired clean conversational heat intelligence assistant & agent studio | [https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com](https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com) |
+
 
 > **Note:** Both Version 1 and Version 2 are simultaneously live and accessible. You can also switch between versions in real-time via the **Version Switcher Pill** in the top navigation bar.
 
