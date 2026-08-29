@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HEATSHIELD AI — Platform Architecture & System Specification</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 15mm 20mm 15mm;
+      @bottom-left {
+        content: "HEATSHIELD AI • Dual-Version Platform Specification (V1 Stable & V2 Thermora)";
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+      @bottom-right {
+        content: "Page " counter(page);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 8pt;
+        font-weight: bold;
+        color: #475569;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.45;
+      color: #1e293b;
+      background: #ffffff;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+    }
+
+    /* Header & Branding */
+    .doc-header {
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .doc-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .doc-title {
+      font-size: 19pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+
+    .doc-subtitle {
+      font-size: 11pt;
+      font-weight: 600;
+      color: #2563eb;
+      margin-bottom: 10px;
+    }
+
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-v1 { background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
+    .badge-v2 { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+    .badge-ai { background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; }
+    .badge-iot { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .badge-meta { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+    /* Section Headings */
+    h2 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-left: 4px solid #2563eb;
+      padding-left: 8px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 12px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 8px;
+      text-align: justify;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      margin-bottom: 14px;
+      font-size: 8.8pt;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 9px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #fcfdfe;
+    }
+
+    .url-link {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 8pt;
+      color: #2563eb;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    /* Cards & Containers */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+      margin-bottom: 14px;
+    }
+
+    .info-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 11px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .info-card-header {
+      font-size: 10pt;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-v1 { border-top: 3px solid #ea580c; }
+    .card-v2 { border-top: 3px solid #2563eb; }
+
+    .callout {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #3b82f6;
+      border-radius: 6px;
+      padding: 9px 12px;
+      margin: 10px 0;
+      font-size: 9pt;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 8pt;
+      line-height: 1.4;
+      overflow-x: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      border: 1px solid #1e293b;
+    }
+
+    code.inline {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 8.5pt;
+      border: 1px solid #e2e8f0;
+    }
+
+    ul, ol {
+      margin-left: 18px;
+      margin-bottom: 8px;
+      font-size: 9pt;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    .key-metric {
+      font-weight: 700;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HEADER & BRANDING ==================== -->
+  <div class="doc-header">
+    <div class="doc-title-row">
+      <div class="doc-title">HEATSHIELD AI</div>
+      <div class="badge badge-meta">SYSTEM SPECIFICATION V2.4</div>
+    </div>
+    <div class="doc-subtitle">Enterprise Microclimate Heat Intelligence Platform (V1 Stable & V2 Thermora)</div>
+    <div class="badges-row">
+      <span class="badge badge-v1">Version 1 (Stable)</span>
+      <span class="badge badge-v2">Version 2 (Thermora)</span>
+      <span class="badge badge-ai">Google GenAI Engine</span>
+      <span class="badge badge-iot">FortyGuard IoT Fleet</span>
+      <span class="badge badge-meta">ISO 7243 WBGT Standard</span>
+    </div>
+  </div>
+
+  <!-- ==================== SECTION 1: EXECUTIVE OVERVIEW & DEPLOYMENTS ==================== -->
+  <h2>SECTION 1: Executive Overview & Public Production Deployments</h2>
+  
+  <p>
+    <strong>HEATSHIELD AI</strong> is an authoritative, multi-agent urban heat resilience platform designed to safeguard municipal workforces, transit corridors, and high-density urban sectors from extreme heat events. The platform directly addresses the limitations of macro-level weather forecasts by ingesting high-resolution microclimate telemetry from the <strong>FortyGuard Temperature API</strong>, calculating physiological heat stress indices (ISO 7243 WBGT, NOAA Heat Index, UTCI), and driving automated multi-agent operational mitigation workflows.
+  </p>
+
+  <h3>Verified Public Production Deployments</h3>
+  <p>Both platform versions are concurrently hosted and accessible in real-time:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Platform Version</th>
+        <th style="width: 45%;">Engine & Architecture Description</th>
+        <th style="width: 30%;">Verified Public URL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Version 1 (Stable)</strong></td>
+        <td>Baseline Heat Analytics Engine & Tactical Command Center with deterministic emergency dispatch.</td>
+        <td><a class="url-link" href="https://heatshield-0a6n.onrender.com/?v=1">https://heatshield-0a6n.onrender.com/?v=1</a></td>
+      </tr>
+      <tr>
+        <td><strong>Version 2 (Thermora)</strong></td>
+        <td>Dynamic AI Heat Intelligence Engine & Multi-Agent Studio featuring stateful multi-turn Gemini reasoning.</td>
+        <td><a class="url-link" href="https://heatshield-0a6n.onrender.com/?v=2">https://heatshield-0a6n.onrender.com/?v=2</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Synchronized Version Switching:</strong> The top navigation bar and bottom chat model selector pill feature two-way synchronization. Toggling between <em>V1 Stable</em> and <em>V2 Thermora</em> updates UI themes, prompt suggestions, and the chatbox input placeholder in real-time.
+  </div>
+
+  <!-- ==================== SECTION 2: DUAL-VERSION ARCHITECTURE ==================== -->
+  <h2>SECTION 2: Dual-Version Architecture & Feature Comparison</h2>
+
+  <div class="card-grid avoid-break">
+    <div class="info-card card-v1">
+      <div class="info-card-header" style="color: #ea580c;">
+        <span>🔥 Version 1 (Stable) — Baseline Tactical Hub</span>
+      </div>
+      <ul>
+        <li><strong>Core Purpose:</strong> Real-time situational awareness, deterministic emergency dispatch, and baseline monitoring.</li>
+        <li><strong>UI Styling:</strong> Clean light mode card architecture (<code class="inline">bg-white</code>, <code class="inline">border-slate-300</code>).</li>
+        <li><strong>24-Hour Diurnal Curves:</strong> High-resolution telemetry plot (Asphalt Surface: 48.2°C, Air Temp: 38.6°C, WBGT: 31.4°C).</li>
+        <li><strong>Chat Input Placeholder:</strong> <em>"Ask V1 Stable about thermal stress, cooling simulations, or OSHA limits..."</em></li>
+        <li><strong>Model Attribution:</strong> Baseline Heat Analytics Engine.</li>
+      </ul>
+    </div>
+
+    <div class="info-card card-v2">
+      <div class="info-card-header" style="color: #2563eb;">
+        <span>⚡ Version 2 (Thermora) — AI Intelligence Engine</span>
+      </div>
+      <ul>
+        <li><strong>Core Purpose:</strong> Dynamic AI-driven heat intelligence, OSHA compliance calculation, and predictive physics ML.</li>
+        <li><strong>UI Styling:</strong> High-contrast light theme with offset background (<code class="inline">bg-slate-100/80</code> container wrapper) for sharp visual visibility.</li>
+        <li><strong>Conversational Agent:</strong> Multi-turn stateful chat memory (<code class="inline">history: [{ role, parts }]</code>).</li>
+        <li><strong>Key Triggers:</strong> <code class="inline">@</code> mention menu (5 agents/context) and <code class="inline">/</code> quick operational commands.</li>
+        <li><strong>Chat Input Placeholder:</strong> <em>"Ask V2 Thermora about thermal stress, cooling simulations, or OSHA limits..."</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Comprehensive Architectural Matrix</h3>
+  <table class="avoid-break">
+    <thead>
+      <tr>
+        <th>Capability / Dimension</th>
+        <th>Version 1 (Stable)</th>
+        <th>Version 2 (Thermora)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Primary AI Model</strong></td>
+        <td>Deterministic Multi-Agent Dispatcher</td>
+        <td>Google Gemini 2.5 Flash / Dynamic Orchestrator</td>
+      </tr>
+      <tr>
+        <td><strong>Conversation Memory</strong></td>
+        <td>Single-Turn Direct Telemetry Query</td>
+        <td>Full Multi-Turn Thread History (Stateful Context)</td>
+      </tr>
+      <tr>
+        <td><strong>Thinking Budget Mode</strong></td>
+        <td>Zero Latency Direct Dispatch</td>
+        <td><code class="inline">thinkingBudget: 0</code> (No reasoning loops)</td>
+      </tr>
+      <tr>
+        <td><strong>Chat UI Theme</strong></td>
+        <td>Light Border (<code class="inline">border-slate-300</code>, <code class="inline">bg-white</code>)</td>
+        <td>High-Contrast Light (<code class="inline">bg-slate-100/80</code> wrapper, <code class="inline">shadow-md</code>)</td>
+      </tr>
+      <tr>
+        <td><strong>Command Popups</strong></td>
+        <td>Pre-built Prompt Pills</td>
+        <td><code class="inline">@</code> Agent Mentions + <code class="inline">/</code> Quick Action Menu</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== SECTION 3: UI GUARDRAILS & DESIGN CONSTRAINTS ==================== -->
+  <div class="page-break"></div>
+  <h2>SECTION 3: UI Guardrails & Design Constraints</h2>
+
+  <p>To ensure rock-solid production stability and eliminate cognitive clutter, HEATSHIELD enforces the following strict frontend UI constraints:</p>
+
+  <div class="info-card avoid-break" style="margin-bottom: 12px;">
+    <div class="info-card-header" style="color: #0f172a;">
+      <span>🔒 1. Strict 2-Option Model Dropdown</span>
+    </div>
+    <p>
+      The model selector dropdown menu on the chat toolbar has been strictly restricted to list <strong>ONLY TWO</strong> platform engines. Extraneous options (e.g. Gemini 3.7 Flash High, Gemini 2.5 Pro, FortyGuard Neural-v2) have been removed:
+    </p>
+    <ol>
+      <li><strong>V1 Stable</strong> — <em>Baseline Heat Analytics Engine</em></li>
+      <li><strong>V2 Thermora</strong> — <em>Dynamic AI Heat Intelligence Engine</em></li>
+    </ol>
+  </div>
+
+  <div class="info-card avoid-break" style="margin-bottom: 12px;">
+    <div class="info-card-header" style="color: #0f172a;">
+      <span>🎙️ 2. Microphone & Audio Icon Elimination</span>
+    </div>
+    <p>
+      The microphone/voice recording icon (<code class="inline">🎙</code>) has been completely removed across both version interfaces to maintain a focused, command-line text interface.
+    </p>
+  </div>
+
+  <div class="info-card avoid-break" style="margin-bottom: 12px;">
+    <div class="info-card-header" style="color: #0f172a;">
+      <span>✨ 3. Asterisk & Star Sanitization Protocol</span>
+    </div>
+    <p>
+      To prevent messy markdown bolding and asterisks in technical reports, HEATSHIELD enforces a dual-layer sanitization protocol:
+    </p>
+    <ul>
+      <li><strong>Backend System Instruction:</strong> <em>"Do not use markdown bolding, asterisks (*), or star decorators anywhere in your output. Return clean, unformatted plain text with plain numbers and line breaks."</em></li>
+      <li><strong>Frontend Parser Sanitizer:</strong> All incoming messages pass through <code class="inline">cleanedText = rawText.replace(/\*/g, '')</code> before DOM insertion.</li>
+    </ul>
+  </div>
+
+  <!-- ==================== SECTION 4: API SPECIFICATIONS & DATA CONTRACTS ==================== -->
+  <h2>SECTION 4: API Specifications & Data Contracts</h2>
+
+  <h3>1. Telemetry Pipeline Endpoint (<code class="inline">GET /api/v1/fortyguard/telemetry</code>)</h3>
+  <p>Fetches real-time sensor node readings across high-risk municipal sectors:</p>
+  <pre><code>// Response Payload Contract
+{
+  "sector_id": "Sector 7 - Downtown Core",
+  "surface_asphalt_temp": 48.2,
+  "ambient_air_temp": 38.6,
+  "relative_humidity": 58.0,
+  "wbgt_stress_index": 31.4,
+  "heat_index": 46.8,
+  "uv_index": 11.0,
+  "risk_level": "EXTREME",
+  "timestamp": "2026-08-29T14:30:00Z"
+}</code></pre>
+
+  <h3>2. Stateful Multi-Turn Agent Chat (<code class="inline">POST /api/v1/agents/chat</code>)</h3>
+  <p>Processes natural language inquiries with complete conversation thread history and zero thinking loops:</p>
+  <pre><code>// Request Payload Contract
+{
+  "user_message": "Calculate OSHA work-rest schedule for Sector 7 outdoor workers",
+  "active_zone": "Sector 7 - Downtown Core",
+  "model_name": "gemini-2.5-flash",
+  "temperature": 0.7,
+  "history": [
+    { "role": "user", "text": "What is the current asphalt temperature in Sector 7?" },
+    { "role": "assistant", "text": "Current asphalt temperature is 48.2 C with WBGT at 31.4 C." }
+  ]
+}
+
+// Backend Execution Parameters:
+// thinkingConfig: { "thinkingBudget": 0 } -> Reasoning output disabled</code></pre>
+
+  <!-- ==================== SECTION 5: MASTER PROMPTS ==================== -->
+  <div class="page-break"></div>
+  <h2>SECTION 5: Master Antigravity Generation Prompts</h2>
+
+  <p>The following executable prompts configure automated engineering workflows for repository documentation and API integration:</p>
+
+  <h3>Prompt 1: Project Summary & Architecture Generator (<code class="inline">PROJECT_SUMMARY.md</code>)</h3>
+  <pre><code>Generate a comprehensive, production-grade PROJECT_SUMMARY.md for the HEATSHIELD AI codebase:
+1. Include platform overview, FortyGuard API integration pipeline, and 4 specialized agent roles:
+   - Heat Sentinel (WBGT & surface anomaly tracking)
+   - Vulnerable Population Advisor (Demographic GIS raster & shelter dispatch)
+   - Urban Cooling Strategist (Cool roofs, misting cannons & albedo ML)
+   - Grid Balancer (Substation load shaving & thermal pre-cooling)
+2. Detail the Dual-Version UI (V1 Stable vs V2 Thermora) with live deployment URLs:
+   - V1 Stable: https://heatshield-0a6n.onrender.com/?v=1
+   - V2 Thermora: https://heatshield-0a6n.onrender.com/?v=2
+3. Document core backend formulas: Stull Wet-Bulb, NOAA Heat Index, and Inverse Distance Weighting (IDW).
+4. Output strictly valid markdown with structured tables and architecture diagrams.</code></pre>
+
+  <h3>Prompt 2: API Documentation & Integration Specification (<code class="inline">API_DOCUMENTATION.md</code>)</h3>
+  <pre><code>Generate an authoritative API_DOCUMENTATION.md for all HEATSHIELD FastAPI endpoints:
+1. Endpoints to document:
+   - GET /api/v1/health -> Health status & uptime
+   - GET /api/v1/fortyguard/telemetry -> IoT sensor stream & UHI index
+   - GET /api/v1/fortyguard/diurnal -> 24-hour diurnal thermal curves
+   - POST /api/v1/heat-intelligence/calculate -> ISO 7243 WBGT & Heat Index
+   - POST /api/v1/ml/simulate-mitigation -> Physics-guided cooling reduction
+   - POST /api/v1/agents/chat -> Multi-turn stateful conversational agent
+   - POST /api/v1/agents/orchestrate -> 4-agent autonomous tactical cycle
+2. For each endpoint include: Method, Path, Auth, Query/Body Parameters, Response JSON, and Curl Example.
+3. Explicitly state the thinkingBudget: 0 configuration and asterisk sanitization rules.</code></pre>
+
+  <!-- ==================== FOOTER METADATA ==================== -->
+  <div class="avoid-break" style="margin-top: 24px; padding-top: 10px; border-top: 1px solid #cbd5e1; font-size: 8pt; color: #64748b; text-align: center;">
+    <strong>HEATSHIELD AI Platform Specification</strong> • Built with Google GenAI & FortyGuard Temperature API • MIT License
+  </div>
+
+</body>
+</html>
