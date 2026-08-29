@@ -73,20 +73,24 @@ const COMMAND_OPTIONS: CommandOption[] = [
 ];
 
 const AVAILABLE_MODELS = [
-  { id: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash High', provider: 'Google GenAI • Fast & Deep Reasoning' },
-  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', provider: 'Google GenAI • Complex Synthesis' },
-  { id: 'thermora-orchestrator', name: 'Thermora Multi-Agent Studio', provider: 'Consensus of 4 Specialized Agents' },
-  { id: 'fortyguard-neural', name: 'FortyGuard Neural-v2', provider: 'Microclimate ML Physics Forecaster' },
+  { id: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash High', badge: 'Gemini 3.7 Flash High', provider: 'Google GenAI • Fast & Deep Reasoning' },
+  { id: 'v2-thermora-ai', name: 'V2 Thermora AI', badge: 'V2 Thermora AI', provider: 'Multi-Agent Consensus (4 Specialized Agents)' },
+  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', badge: 'Gemini 2.5 Pro', provider: 'Google GenAI • Complex Synthesis' },
+  { id: 'fortyguard-neural', name: 'FortyGuard Neural-v2', badge: 'FortyGuard Neural-v2', provider: 'Microclimate ML Physics Forecaster' },
 ];
 
 export const V2ChatView: React.FC = () => {
-  const { activeZone, telemetry } = useApp();
+  const { activeZone, telemetry, version } = useApp();
+  const isV2 = version === 'v2';
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'msg-init',
       sender: 'assistant',
-      agentName: 'Thermora AI Assistant',
-      text: `Hello! I am your **Thermora Heat Intelligence Assistant**, directly connected to **FortyGuard** microclimate telemetry across ${activeZone}.\n\nCurrently, surface asphalt temperatures are at **${telemetry.surfaceTemp}°C** with a Wet-Bulb Globe Temperature (WBGT) of **${telemetry.wetBulbTemp}°C** (${telemetry.riskLevel} danger category).\n\nHow can I assist your heat mitigation and operational planning today?`,
+      agentName: isV2 ? 'V2 Thermora AI' : 'HeatShield AI Assistant',
+      text: isV2
+        ? `Hello! I am your **V2 Thermora Heat Intelligence Assistant**, directly connected to **FortyGuard** microclimate telemetry across ${activeZone}.\n\nCurrently, surface asphalt temperatures are at **${telemetry.surfaceTemp}°C** with a Wet-Bulb Globe Temperature (WBGT) of **${telemetry.wetBulbTemp}°C** (${telemetry.riskLevel} danger category).\n\nHow can I assist your heat mitigation and operational planning today?`
+        : `Hello! I am **HeatShield V1 Stable Assistant**, monitoring real-time thermal telemetry across **${activeZone}**.\n\nCurrent Surface Asphalt: **${telemetry.surfaceTemp}°C** | Ambient: **${telemetry.ambientTemp}°C** | WBGT: **${telemetry.wetBulbTemp}°C**.\n\nAsk me about thermal risk, cooling simulations, or OSHA labor limits.`,
       evidence: 'FortyGuard Stream Ingestion (Confidence: 99%, Live Synced)',
       tools: ['query_fortyguard_sensors', 'calculate_wbgt_stress'],
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -98,8 +102,8 @@ export const V2ChatView: React.FC = () => {
   const [thinkingStage, setThinkingStage] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   
-  // New Command-Style Chatbar States
-  const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0]);
+  // Dual-Theme & Command-Style Chatbar States
+  const [selectedModel, setSelectedModel] = useState(isV2 ? AVAILABLE_MODELS[1] : AVAILABLE_MODELS[0]);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
@@ -111,13 +115,25 @@ export const V2ChatView: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const suggestedPrompts = [
-    'Why is the heat risk high in Sector 7?',
-    'Simulate misting arrays and cool roof coatings',
-    'How many outdoor workers and elderly are exposed?',
-    'What is the HVAC electrical peak load forecast?',
-    'What are OSHA work-rest guidelines for this WBGT?',
-  ];
+  // Sync default model when version changes
+  useEffect(() => {
+    setSelectedModel(isV2 ? AVAILABLE_MODELS[1] : AVAILABLE_MODELS[0]);
+  }, [isV2]);
+
+  const suggestedPrompts = isV2
+    ? [
+        'Why is the heat risk high in Sector 7?',
+        'Simulate misting arrays and cool roof coatings',
+        'How many outdoor workers and elderly are exposed?',
+        'What is the HVAC electrical peak load forecast?',
+        'What are OSHA work-rest guidelines for this WBGT?',
+      ]
+    : [
+        `What is the current WBGT stress in ${activeZone}?`,
+        'Calculate OSHA 15/45 labor rest rotation',
+        'Simulate high-albedo cool pavement reduction',
+        'How many outdoor workers are at risk?',
+      ];
 
   const scrollToBottom = () => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -249,7 +265,7 @@ export const V2ChatView: React.FC = () => {
     setThinkingStage(`Reasoning with ${selectedModel.name}...`);
     setTimeout(() => {
       setThinkingStage('Synthesizing FortyGuard sensor telemetry & ISO 7243 indices...');
-    }, 600);
+    }, 400);
 
     // Build multi-turn conversation history payload for backend Gemini API
     const historyPayload: ChatMessagePayload[] = messages.map((m) => ({
@@ -261,13 +277,13 @@ export const V2ChatView: React.FC = () => {
       const res: AgentChatResponse = await agentApi.chat(query, activeZone, {
         history: historyPayload,
         modelName: selectedModel.id,
-        temperature: 0.75,
+        temperature: 0.7,
       });
 
       const assistantMessage: Message = {
         id: `ai-${Date.now()}`,
         sender: 'assistant',
-        agentName: res.agent_name || 'Thermora Multi-Agent Orchestrator',
+        agentName: res.agent_name || (isV2 ? 'V2 Thermora Multi-Agent Orchestrator' : 'HeatShield AI'),
         text: res.reply_message,
         evidence: res.evidence_snippet,
         tools: res.recommended_tools,
@@ -276,12 +292,12 @@ export const V2ChatView: React.FC = () => {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch {
-      const fallbackText = `Based on FortyGuard telemetry in **${activeZone}**:\n\n• **Ambient Temperature:** ${telemetry.ambientTemp}°C\n• **Surface Asphalt Temperature:** ${telemetry.surfaceTemp}°C\n• **Wet-Bulb Globe Temp (WBGT):** ${telemetry.wetBulbTemp}°C (**${telemetry.riskLevel} Danger**)\n• **Relative Humidity:** ${telemetry.relativeHumidity}%\n\n**Actionable AI Guidance:**\n1. Enforce mandatory 15-minute shaded rest breaks per hour for all outdoor laborers.\n2. Activate high-pressure misting arrays along public transit corridors.\n3. Buffer municipal air conditioning demand before peak afternoon heat surge.`;
+      const fallbackText = `Based on FortyGuard telemetry in **${activeZone}**:\n\n• **Ambient Temperature:** ${telemetry.ambientTemp}°C\n• **Surface Asphalt Temperature:** ${telemetry.surfaceTemp}°C\n• **Wet-Bulb Globe Temp (WBGT):** ${telemetry.wetBulbTemp}°C (**${telemetry.riskLevel} Danger**)\n• **Relative Humidity:** ${telemetry.relativeHumidity}%\n\n**Actionable Directives:**\n1. Enforce mandatory 15-minute shaded rest breaks per hour for all outdoor laborers.\n2. Activate high-pressure misting arrays along public transit corridors.\n3. Buffer municipal air conditioning demand before peak afternoon heat surge.`;
 
       const fallbackMessage: Message = {
         id: `ai-${Date.now()}`,
         sender: 'assistant',
-        agentName: 'Thermora Multi-Agent Assistant',
+        agentName: isV2 ? 'V2 Thermora Multi-Agent Assistant' : 'HeatShield Assistant',
         text: fallbackText,
         evidence: 'FortyGuard Local Telemetry Cache (Confidence: 98%)',
         tools: ['query_fortyguard_sensors', 'calculate_wbgt_stress'],
@@ -305,7 +321,7 @@ export const V2ChatView: React.FC = () => {
       {
         id: 'msg-reset',
         sender: 'assistant',
-        agentName: 'Thermora AI Assistant',
+        agentName: isV2 ? 'V2 Thermora AI' : 'HeatShield AI',
         text: `Conversation cleared. Ready to assist you with real-time heat intelligence in **${activeZone}**.`,
         evidence: 'FortyGuard Ingestion Ready',
         tools: ['query_fortyguard_sensors'],
@@ -317,13 +333,13 @@ export const V2ChatView: React.FC = () => {
   const renderFormattedText = (text: string) => {
     const lines = text.split('\n');
     return (
-      <div className="space-y-2 text-sm leading-relaxed text-slate-800">
+      <div className={`space-y-2 text-sm leading-relaxed ${isV2 ? 'text-slate-200' : 'text-slate-800'}`}>
         {lines.map((line, idx) => {
           if (!line.trim()) return <div key={idx} className="h-1.5" />;
 
           if (line.trim().startsWith('###')) {
             return (
-              <h4 key={idx} className="text-sm font-bold text-slate-900 mt-2 mb-1">
+              <h4 key={idx} className={`text-sm font-bold mt-2 mb-1 ${isV2 ? 'text-white' : 'text-slate-900'}`}>
                 {line.trim().replace(/^###\s*/, '')}
               </h4>
             );
@@ -333,7 +349,7 @@ export const V2ChatView: React.FC = () => {
             const content = line.trim().replace(/^[•-]\s*/, '');
             return (
               <div key={idx} className="flex items-start gap-2 pl-2">
-                <span className="text-blue-600 font-bold mt-0.5">•</span>
+                <span className={`font-bold mt-0.5 ${isV2 ? 'text-orange-400' : 'text-blue-600'}`}>•</span>
                 <span dangerouslySetInnerHTML={{ __html: formatBold(content) }} />
               </div>
             );
@@ -344,7 +360,7 @@ export const V2ChatView: React.FC = () => {
             if (match) {
               return (
                 <div key={idx} className="flex items-start gap-2 pl-2">
-                  <span className="font-bold text-blue-700 min-w-[20px]">{match[1]}</span>
+                  <span className={`font-bold min-w-[20px] ${isV2 ? 'text-orange-400' : 'text-blue-700'}`}>{match[1]}</span>
                   <span dangerouslySetInnerHTML={{ __html: formatBold(match[2]) }} />
                 </div>
               );
@@ -359,8 +375,8 @@ export const V2ChatView: React.FC = () => {
 
   const formatBold = (str: string) => {
     return str
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em class="text-slate-700">$1</em>');
+      .replace(/\*\*(.*?)\*\*/g, `<strong class="font-bold ${isV2 ? 'text-white' : 'text-slate-900'}">$1</strong>`)
+      .replace(/\*(.*?)\*/g, `<em class="${isV2 ? 'text-slate-300' : 'text-slate-700'}">$1</em>`);
   };
 
   const filteredMentions = MENTION_OPTIONS.filter(
@@ -372,29 +388,53 @@ export const V2ChatView: React.FC = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-130px)] min-h-[600px] bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden font-sans">
+    <div
+      className={`max-w-4xl mx-auto flex flex-col h-[calc(100vh-130px)] min-h-[600px] rounded-3xl border shadow-sm overflow-hidden font-sans transition-colors ${
+        isV2
+          ? 'bg-[#0c101c] border-slate-800 text-slate-100 shadow-xl'
+          : 'bg-white border-slate-200 text-slate-900 shadow-md'
+      }`}
+    >
       {/* Top Header */}
-      <div className="p-3.5 sm:p-4 px-4 sm:px-6 border-b border-slate-200 bg-white flex items-center justify-between flex-shrink-0">
+      <div
+        className={`p-3.5 sm:p-4 px-4 sm:px-6 border-b flex items-center justify-between flex-shrink-0 transition-colors ${
+          isV2 ? 'border-slate-800 bg-[#0c101c]' : 'border-slate-200 bg-white'
+        }`}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+          <div
+            className={`w-10 h-10 rounded-2xl text-white flex items-center justify-center shadow-sm ${
+              isV2 ? 'bg-gradient-to-br from-orange-500 to-red-600 shadow-orange-500/20' : 'bg-blue-600'
+            }`}
+          >
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-slate-900">Thermora AI</h2>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold g-chip-safe hidden xs:inline">
+              <h2 className={`text-base font-bold ${isV2 ? 'text-white' : 'text-slate-900'}`}>
+                {isV2 ? 'V2 Thermora AI' : 'HeatShield AI Assistant'}
+              </h2>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold hidden xs:inline ${
+                  isV2 ? 'g-chip-info' : 'g-chip-safe'
+                }`}
+              >
                 FORTYGUARD GROUNDED
               </span>
             </div>
-            <p className="text-xs text-slate-500 truncate max-w-[220px] sm:max-w-none">
-              Autonomous multi-agent intelligence for {activeZone}
+            <p className={`text-xs truncate max-w-[220px] sm:max-w-none ${isV2 ? 'text-slate-400' : 'text-slate-500'}`}>
+              {isV2
+                ? `Autonomous multi-agent intelligence for ${activeZone}`
+                : `Real-time thermal monitoring & operational guidance for ${activeZone}`}
             </p>
           </div>
         </div>
 
         <button
           onClick={handleClear}
-          className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          className={`p-2 rounded-xl transition-colors cursor-pointer ${
+            isV2 ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+          }`}
           title="Clear Conversation"
         >
           <Trash2 className="w-4 h-4" />
@@ -402,16 +442,28 @@ export const V2ChatView: React.FC = () => {
       </div>
 
       {/* Suggested Prompt Pills */}
-      <div className="p-2.5 sm:p-3 px-4 sm:px-6 bg-slate-50 border-b border-slate-200 overflow-x-auto flex items-center gap-2 flex-shrink-0 scrollbar-none">
-        <span className="text-xs font-semibold text-slate-500 whitespace-nowrap flex items-center gap-1 mr-1">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" /> Prompts:
+      <div
+        className={`p-2.5 sm:p-3 px-4 sm:px-6 border-b overflow-x-auto flex items-center gap-2 flex-shrink-0 scrollbar-none transition-colors ${
+          isV2 ? 'bg-[#080c16] border-slate-800/80' : 'bg-slate-50 border-slate-200'
+        }`}
+      >
+        <span
+          className={`text-xs font-semibold whitespace-nowrap flex items-center gap-1 mr-1 ${
+            isV2 ? 'text-slate-400' : 'text-slate-500'
+          }`}
+        >
+          <Sparkles className={`w-3.5 h-3.5 ${isV2 ? 'text-orange-400' : 'text-blue-600'}`} /> Prompts:
         </span>
         {suggestedPrompts.map((prompt, idx) => (
           <button
             key={idx}
             onClick={() => handleSend(prompt)}
             disabled={isThinking}
-            className="px-3 py-1 rounded-full bg-white hover:bg-blue-50 hover:border-blue-300 border border-slate-200 text-xs font-medium text-slate-700 hover:text-blue-700 transition-all whitespace-nowrap shadow-xs cursor-pointer"
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap shadow-xs cursor-pointer ${
+              isV2
+                ? 'bg-slate-900/90 hover:bg-orange-500/15 hover:border-orange-500/40 border border-slate-800 text-slate-300 hover:text-orange-300'
+                : 'bg-white hover:bg-blue-50 hover:border-blue-300 border border-slate-200 text-slate-700 hover:text-blue-700'
+            }`}
           >
             {prompt}
           </button>
@@ -419,14 +471,22 @@ export const V2ChatView: React.FC = () => {
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-5 bg-[#FAFBFD]">
+      <div
+        className={`flex-1 p-4 sm:p-6 overflow-y-auto space-y-5 transition-colors ${
+          isV2 ? 'bg-[#080c16]' : 'bg-[#FAFBFD]'
+        }`}
+      >
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex items-start gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.sender === 'assistant' && (
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 mt-1 shadow-xs">
+              <div
+                className={`w-8 h-8 rounded-full text-white flex items-center justify-center flex-shrink-0 mt-1 shadow-xs ${
+                  isV2 ? 'bg-gradient-to-br from-orange-500 to-red-600' : 'bg-blue-600'
+                }`}
+              >
                 <Bot className="w-4 h-4" />
               </div>
             )}
@@ -434,25 +494,35 @@ export const V2ChatView: React.FC = () => {
             <div
               className={`max-w-[88%] sm:max-w-[82%] rounded-2xl p-4 md:p-5 shadow-xs transition-all ${
                 msg.sender === 'user'
-                  ? 'bg-blue-600 text-white rounded-tr-xs'
-                  : 'bg-white border border-slate-200 text-slate-900 rounded-tl-xs'
+                  ? isV2
+                    ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-tr-xs shadow-orange-500/20'
+                    : 'bg-blue-600 text-white rounded-tr-xs'
+                  : isV2
+                    ? 'bg-[#131b2e] border border-slate-800/80 text-slate-100 rounded-tl-xs'
+                    : 'bg-white border border-slate-200 text-slate-900 rounded-tl-xs'
               }`}
             >
               {msg.sender === 'assistant' && msg.agentName && (
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 text-xs text-slate-500">
-                  <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                <div
+                  className={`flex items-center justify-between pb-2 mb-2 border-b text-xs ${
+                    isV2 ? 'border-slate-800 text-slate-400' : 'border-slate-100 text-slate-500'
+                  }`}
+                >
+                  <span className={`font-bold flex items-center gap-1.5 ${isV2 ? 'text-orange-300' : 'text-slate-800'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${isV2 ? 'bg-orange-400' : 'bg-blue-600'}`} />
                     {msg.agentName}
                   </span>
                   <div className="flex items-center gap-2">
                     <span>{msg.timestamp}</span>
                     <button
                       onClick={() => handleCopy(msg.id, msg.text)}
-                      className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                      className={`p-1 rounded transition-colors cursor-pointer ${
+                        isV2 ? 'hover:bg-slate-800 text-slate-400 hover:text-slate-200' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-700'
+                      }`}
                       title="Copy Answer"
                     >
                       {copiedId === msg.id ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
                       ) : (
                         <Copy className="w-3.5 h-3.5" />
                       )}
@@ -467,7 +537,9 @@ export const V2ChatView: React.FC = () => {
                   {msg.attachedFiles.map((file, fidx) => (
                     <span
                       key={fidx}
-                      className="px-2 py-0.5 rounded-md bg-blue-500 text-white text-[11px] flex items-center gap-1"
+                      className={`px-2 py-0.5 rounded-md text-[11px] flex items-center gap-1 ${
+                        isV2 ? 'bg-slate-800 text-orange-300 border border-slate-700' : 'bg-blue-500 text-white'
+                      }`}
                     >
                       <FileText className="w-3 h-3" />
                       {file}
@@ -483,12 +555,16 @@ export const V2ChatView: React.FC = () => {
               )}
 
               {msg.sender === 'assistant' && (msg.evidence || (msg.tools && msg.tools.length > 0)) && (
-                <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 space-y-1.5">
+                <div
+                  className={`mt-3 pt-2.5 border-t text-[11px] space-y-1.5 ${
+                    isV2 ? 'border-slate-800 text-slate-400' : 'border-slate-100 text-slate-500'
+                  }`}
+                >
                   {msg.evidence && (
-                    <div className="flex items-center gap-1.5 text-slate-600">
-                      <ShieldAlert className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                    <div className="flex items-center gap-1.5">
+                      <ShieldAlert className={`w-3.5 h-3.5 flex-shrink-0 ${isV2 ? 'text-orange-400' : 'text-blue-600'}`} />
                       <span>
-                        <strong>Grounding Evidence:</strong> {msg.evidence}
+                        <strong className={isV2 ? 'text-slate-300' : 'text-slate-700'}>Grounding Evidence:</strong> {msg.evidence}
                       </span>
                     </div>
                   )}
@@ -500,7 +576,9 @@ export const V2ChatView: React.FC = () => {
                       {msg.tools.map((t, tidx) => (
                         <span
                           key={tidx}
-                          className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono text-[10px]"
+                          className={`px-2 py-0.5 rounded-md font-mono text-[10px] ${
+                            isV2 ? 'bg-slate-900 text-slate-300 border border-slate-800' : 'bg-slate-100 text-slate-700'
+                          }`}
                         >
                           {t}
                         </span>
@@ -512,7 +590,11 @@ export const V2ChatView: React.FC = () => {
             </div>
 
             {msg.sender === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center flex-shrink-0 mt-1 shadow-xs">
+              <div
+                className={`w-8 h-8 rounded-full text-white flex items-center justify-center flex-shrink-0 mt-1 shadow-xs ${
+                  isV2 ? 'bg-slate-800' : 'bg-slate-800'
+                }`}
+              >
                 <User className="w-4 h-4" />
               </div>
             )}
@@ -527,16 +609,33 @@ export const V2ChatView: React.FC = () => {
               exit={{ opacity: 0, y: 10 }}
               className="flex items-start gap-3"
             >
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs animate-pulse">
+              <div
+                className={`w-8 h-8 rounded-full text-white flex items-center justify-center flex-shrink-0 shadow-xs animate-pulse ${
+                  isV2 ? 'bg-gradient-to-br from-orange-500 to-red-600' : 'bg-blue-600'
+                }`}
+              >
                 <Bot className="w-4 h-4" />
               </div>
-              <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-4 shadow-xs flex items-center gap-3">
+              <div
+                className={`rounded-2xl rounded-tl-xs p-4 shadow-xs flex items-center gap-3 border ${
+                  isV2 ? 'bg-[#131b2e] border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-600'
+                }`}
+              >
                 <div className="flex gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span
+                    className={`w-2 h-2 rounded-full animate-bounce ${isV2 ? 'bg-orange-400' : 'bg-blue-600'}`}
+                    style={{ animationDelay: '0ms' }}
+                  />
+                  <span
+                    className={`w-2 h-2 rounded-full animate-bounce ${isV2 ? 'bg-orange-400' : 'bg-blue-600'}`}
+                    style={{ animationDelay: '150ms' }}
+                  />
+                  <span
+                    className={`w-2 h-2 rounded-full animate-bounce ${isV2 ? 'bg-orange-400' : 'bg-blue-600'}`}
+                    style={{ animationDelay: '300ms' }}
+                  />
                 </div>
-                <span className="text-xs font-medium text-slate-600">{thinkingStage || 'Analyzing heat conditions...'}</span>
+                <span className="text-xs font-medium">{thinkingStage || 'Analyzing heat conditions...'}</span>
               </div>
             </motion.div>
           )}
@@ -546,9 +645,13 @@ export const V2ChatView: React.FC = () => {
       </div>
 
       {/* ==========================================================
-          COMMAND-STYLE CHATBOX CONTAINER (MODERN COPILOT / IDE UI)
+          DUAL-THEME COMMAND-STYLE CHATBAR CONTAINER
           ========================================================== */}
-      <div className="p-3 sm:p-4 px-4 sm:px-6 bg-slate-50 border-t border-slate-200 flex-shrink-0 relative">
+      <div
+        className={`p-3 sm:p-4 px-4 sm:px-6 border-t flex-shrink-0 relative transition-colors ${
+          isV2 ? 'bg-[#080c16] border-slate-800' : 'bg-slate-50 border-slate-200'
+        }`}
+      >
         {/* Trigger Popup Menu: @ Agent Mention */}
         <AnimatePresence>
           {showMentionMenu && (
@@ -556,9 +659,15 @@ export const V2ChatView: React.FC = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="absolute bottom-full left-6 mb-2 w-80 bg-[#1c1c1e] text-white border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5"
+              className={`absolute bottom-full left-6 mb-2 w-80 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 border ${
+                isV2 ? 'bg-[#182032] text-white border-slate-800' : 'bg-[#1c1c1e] text-white border-neutral-800'
+              }`}
             >
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5 border-b border-neutral-800">
+              <div
+                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border-b ${
+                  isV2 ? 'text-orange-400 border-slate-800' : 'text-neutral-400 border-neutral-800'
+                }`}
+              >
                 <AtSign className="w-3 h-3 text-blue-400" /> Mention Agent / Context
               </div>
               <div className="max-h-56 overflow-y-auto py-1">
@@ -569,7 +678,9 @@ export const V2ChatView: React.FC = () => {
                       key={opt.id}
                       type="button"
                       onClick={() => handleSelectMention(opt.tag)}
-                      className="w-full px-3 py-2 rounded-xl text-left hover:bg-neutral-800 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      className={`w-full px-3 py-2 rounded-xl text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        isV2 ? 'hover:bg-slate-800 text-slate-100' : 'hover:bg-neutral-800 text-slate-100'
+                      }`}
                     >
                       <div className={`p-1.5 rounded-lg bg-neutral-900 border border-neutral-800 ${opt.color}`}>
                         <Icon className="w-4 h-4" />
@@ -596,9 +707,15 @@ export const V2ChatView: React.FC = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="absolute bottom-full left-6 mb-2 w-80 bg-[#1c1c1e] text-white border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5"
+              className={`absolute bottom-full left-6 mb-2 w-80 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 border ${
+                isV2 ? 'bg-[#182032] text-white border-slate-800' : 'bg-[#1c1c1e] text-white border-neutral-800'
+              }`}
             >
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5 border-b border-neutral-800">
+              <div
+                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border-b ${
+                  isV2 ? 'text-emerald-400 border-slate-800' : 'text-neutral-400 border-neutral-800'
+                }`}
+              >
                 <Command className="w-3 h-3 text-emerald-400" /> Quick Operational Actions
               </div>
               <div className="max-h-56 overflow-y-auto py-1">
@@ -609,7 +726,9 @@ export const V2ChatView: React.FC = () => {
                       key={opt.id}
                       type="button"
                       onClick={() => handleSelectCommand(opt.cmd)}
-                      className="w-full px-3 py-2 rounded-xl text-left hover:bg-neutral-800 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      className={`w-full px-3 py-2 rounded-xl text-left flex items-center gap-2.5 transition-colors cursor-pointer ${
+                        isV2 ? 'hover:bg-slate-800 text-slate-100' : 'hover:bg-neutral-800 text-slate-100'
+                      }`}
                     >
                       <div className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-emerald-400">
                         <Icon className="w-4 h-4" />
@@ -629,22 +748,36 @@ export const V2ChatView: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* The Dark Command Input Container */}
-        <div className="bg-[#1c1c1e] border border-neutral-800 rounded-2xl p-3 sm:p-3.5 shadow-lg transition-all focus-within:border-neutral-700 focus-within:ring-1 focus-within:ring-neutral-700">
+        {/* The Dual-Theme Command Input Container */}
+        <div
+          className={`rounded-2xl p-3 sm:p-3.5 border transition-all ${
+            isV2
+              ? 'bg-[#182032] border-slate-800 shadow-lg text-slate-100 focus-within:border-orange-500/60 focus-within:ring-1 focus-within:ring-orange-500/30'
+              : 'bg-white border-slate-200 shadow-sm text-slate-900 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100'
+          }`}
+        >
           {/* File Attachment Chips */}
           {attachedFiles.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-2.5 pb-2 border-b border-neutral-800">
+            <div
+              className={`flex flex-wrap gap-1.5 mb-2.5 pb-2 border-b ${
+                isV2 ? 'border-slate-800' : 'border-slate-100'
+              }`}
+            >
               {attachedFiles.map((file, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 rounded-lg bg-neutral-800 text-neutral-200 text-xs flex items-center gap-1.5 border border-neutral-700"
+                  className={`px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 border ${
+                    isV2
+                      ? 'bg-slate-900 text-slate-200 border-slate-700'
+                      : 'bg-slate-100 text-slate-800 border-slate-200'
+                  }`}
                 >
-                  <FileText className="w-3.5 h-3.5 text-blue-400" />
+                  <FileText className={`w-3.5 h-3.5 ${isV2 ? 'text-orange-400' : 'text-blue-600'}`} />
                   <span className="truncate max-w-[140px]">{file}</span>
                   <button
                     type="button"
                     onClick={() => removeFile(idx)}
-                    className="p-0.5 rounded-full hover:bg-neutral-700 text-neutral-400 hover:text-white"
+                    className="p-0.5 rounded-full hover:bg-slate-700/50 cursor-pointer"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -674,13 +807,23 @@ export const V2ChatView: React.FC = () => {
                 setShowCommandMenu(false);
               }
             }}
-            placeholder="Ask anything, @ to mention, / for actions"
+            placeholder={
+              isV2
+                ? 'Ask V2 Thermora AI... (@ to mention, / for actions)'
+                : `Ask V1 Stable about thermal stress, cooling simulations, or OSHA limits in ${activeZone}...`
+            }
             disabled={isThinking}
-            className="w-full bg-transparent text-slate-100 placeholder:text-neutral-500 text-sm outline-none resize-none leading-relaxed"
+            className={`w-full bg-transparent text-sm outline-none resize-none leading-relaxed ${
+              isV2 ? 'text-slate-100 placeholder:text-slate-500' : 'text-slate-900 placeholder:text-slate-400'
+            }`}
           />
 
           {/* Bottom Toolbar & Controls */}
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-800/80">
+          <div
+            className={`flex items-center justify-between mt-2 pt-2 border-t ${
+              isV2 ? 'border-slate-800/80' : 'border-slate-100'
+            }`}
+          >
             {/* Left Side Controls: Attachment Button & Model Selector Dropdown */}
             <div className="flex items-center gap-2">
               {/* Hidden File Input */}
@@ -696,8 +839,12 @@ export const V2ChatView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-1.5 rounded-lg bg-neutral-800/80 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-700/60 transition-colors cursor-pointer"
-                title="Attach files or thermal maps (+)"
+                className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                  isV2
+                    ? 'bg-[#0c101c] hover:bg-[#131b2e] text-slate-300 hover:text-white border-slate-700/80'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border-slate-200'
+                }`}
+                title="Attach files or thermal data (+)"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -707,11 +854,15 @@ export const V2ChatView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsModelDropdownOpen((prev) => !prev)}
-                  className="px-2.5 py-1 rounded-full bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/60 text-xs font-semibold text-neutral-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className={`px-2.5 py-1 rounded-full border text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                    isV2
+                      ? 'bg-[#0c101c] hover:bg-[#131b2e] border-slate-700/80 text-orange-300'
+                      : 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                  }`}
                 >
-                  <Sparkles className="w-3 h-3 text-blue-400" />
+                  <Sparkles className={`w-3 h-3 ${isV2 ? 'text-orange-400' : 'text-blue-600'}`} />
                   <span className="truncate max-w-[130px] sm:max-w-[180px]">{selectedModel.name}</span>
-                  <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 transition-transform ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Model Selection Menu */}
@@ -721,7 +872,9 @@ export const V2ChatView: React.FC = () => {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
-                      className="absolute bottom-full left-0 mb-2 w-72 bg-[#1c1c1e] text-white border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5"
+                      className={`absolute bottom-full left-0 mb-2 w-72 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5 border ${
+                        isV2 ? 'bg-[#182032] text-white border-slate-800' : 'bg-[#1c1c1e] text-white border-neutral-800'
+                      }`}
                     >
                       <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 border-b border-neutral-800">
                         Select AI Intelligence Model
@@ -736,12 +889,18 @@ export const V2ChatView: React.FC = () => {
                               setIsModelDropdownOpen(false);
                             }}
                             className={`w-full px-3 py-2 rounded-xl text-left flex flex-col transition-colors cursor-pointer ${
-                              selectedModel.id === model.id ? 'bg-blue-600/20 border border-blue-500/40 text-blue-400' : 'hover:bg-neutral-800 text-neutral-200'
+                              selectedModel.id === model.id
+                                ? isV2
+                                  ? 'bg-orange-500/20 border border-orange-500/40 text-orange-300'
+                                  : 'bg-blue-600/20 border border-blue-500/40 text-blue-400'
+                                : 'hover:bg-neutral-800 text-neutral-200'
                             }`}
                           >
                             <span className="text-xs font-bold text-slate-100 flex items-center justify-between">
                               {model.name}
-                              {selectedModel.id === model.id && <Check className="w-3.5 h-3.5 text-blue-400" />}
+                              {selectedModel.id === model.id && (
+                                <Check className={`w-3.5 h-3.5 ${isV2 ? 'text-orange-400' : 'text-blue-400'}`} />
+                              )}
                             </span>
                             <span className="text-[10px] text-neutral-400 mt-0.5">{model.provider}</span>
                           </button>
@@ -753,7 +912,7 @@ export const V2ChatView: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Side Controls: Microphone & Circular Submit Button */}
+            {/* Right Side Controls: Microphone & Submit Button */}
             <div className="flex items-center gap-2">
               {/* Microphone Voice Button */}
               <button
@@ -762,22 +921,28 @@ export const V2ChatView: React.FC = () => {
                 className={`p-2 rounded-full border transition-all cursor-pointer ${
                   isListening
                     ? 'bg-red-600 text-white border-red-500 animate-pulse'
-                    : 'bg-neutral-800/80 hover:bg-neutral-800 text-neutral-400 hover:text-white border-neutral-700/60'
+                    : isV2
+                      ? 'bg-[#0c101c] hover:bg-[#131b2e] text-slate-400 hover:text-white border-slate-700/80'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border-slate-200'
                 }`}
-                title={isListening ? 'Listening... click to stop' : 'Voice Input'}
+                title={isListening ? 'Listening... click to stop' : 'Voice Input (🎙)'}
               >
                 {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
               </button>
 
-              {/* Circular Submit Button with Right Arrow */}
+              {/* Submit Button (↗ / ArrowRight) */}
               <button
                 type="button"
                 onClick={() => handleSend()}
                 disabled={(!input.trim() && attachedFiles.length === 0) || isThinking}
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                   input.trim() || attachedFiles.length > 0
-                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20'
-                    : 'bg-neutral-800 text-neutral-600 cursor-not-allowed'
+                    ? isV2
+                      ? 'bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white shadow-md shadow-orange-500/20'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-600/20'
+                    : isV2
+                      ? 'bg-slate-900 text-slate-600 cursor-not-allowed'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 }`}
                 title="Send Message"
               >

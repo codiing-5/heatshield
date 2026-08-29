@@ -150,7 +150,7 @@ export const V2IntelligenceView: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full h-[300px] sm:h-[340px] min-h-[280px]">
+        <div className="w-full h-[340px] min-h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={diurnalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>

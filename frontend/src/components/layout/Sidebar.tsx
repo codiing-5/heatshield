@@ -36,7 +36,7 @@ const v1NavItems: NavItem[] = [
 
 const v2NavItems: NavItem[] = [
   { id: 'v2-home', label: 'Overview', sublabel: 'Heat Risk & AI Brief', icon: Home },
-  { id: 'v2-chat', label: 'Thermora AI', sublabel: 'Conversational Assistant', icon: Sparkles },
+  { id: 'v2-chat', label: 'V2 Thermora AI', sublabel: 'Conversational Assistant', icon: Sparkles },
   { id: 'v2-intelligence', label: 'Heat Intelligence', sublabel: 'Thermal Analytics & ML', icon: Thermometer },
   { id: 'v2-map', label: 'GIS Heat Map', sublabel: 'Interactive Risk Mesh', icon: MapIcon },
   { id: 'v2-agents', label: 'Agent Network', sublabel: 'Multi-Agent Orchestrator', icon: Bot },
@@ -88,7 +88,7 @@ export const Sidebar: React.FC = () => {
               <div>
                 <div className="flex items-center gap-1.5">
                   <h1 className={`text-lg font-bold tracking-tight ${isV2 ? 'text-slate-900' : 'text-white'}`}>
-                    {isV2 ? 'THERMORA' : 'HEATSHIELD'}
+                    {isV2 ? 'V2 THERMORA' : 'HEATSHIELD'}
                   </h1>
                   <span
                     className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
@@ -99,7 +99,7 @@ export const Sidebar: React.FC = () => {
                   </span>
                 </div>
                 <p className={`text-[11px] ${isV2 ? 'text-slate-500' : 'text-slate-400 font-mono'}`}>
-                  {isV2 ? 'Thermora AI Intelligence' : 'Tactical Command Center'}
+                  {isV2 ? 'V2 Thermora AI Intelligence' : 'Tactical Command Center'}
                 </p>
               </div>
             </div>

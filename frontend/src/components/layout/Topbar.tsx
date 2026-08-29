@@ -96,7 +96,7 @@ export const Topbar: React.FC = () => {
             }`}
           >
             <Sparkles className="w-3 h-3 text-blue-200" />
-            <span>Thermora</span>
+            <span>V2 Thermora</span>
           </button>
         </div>
 

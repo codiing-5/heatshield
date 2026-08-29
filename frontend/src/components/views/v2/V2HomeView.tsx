@@ -115,7 +115,7 @@ export const V2HomeView: React.FC = () => {
             LIVE HEAT INTEL • FORTYGUARD TELEMETRY SYNCED
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-            THERMORA
+            V2 THERMORA
           </h1>
           <p className="text-base text-slate-600 mt-1 font-normal">
             Autonomous Urban Heat Intelligence & Multi-Agent Platform
@@ -128,7 +128,7 @@ export const V2HomeView: React.FC = () => {
             className="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-all shadow-sm flex items-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-blue-200" />
-            Ask Thermora AI
+            Ask V2 Thermora AI
           </button>
 
           <button
