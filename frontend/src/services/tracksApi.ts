@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig';
+
 export interface TrackDetail {
   id: string;
   title: string;
@@ -34,7 +36,7 @@ export interface TrackActionResponse {
 
 export const tracksApi = {
   async getAllTracks(): Promise<AllTracksResponse> {
-    const res = await fetch('/api/v1/tracks/all');
+    const res = await fetch(`${API_BASE_URL}/api/v1/tracks/all`);
     if (!res.ok) {
       throw new Error(`Tracks API error: ${res.status}`);
     }
@@ -42,7 +44,7 @@ export const tracksApi = {
   },
 
   async dispatchAction(trackId: string, actionName: string, zoneName: string): Promise<TrackActionResponse> {
-    const res = await fetch(`/api/v1/tracks/${trackId}/action`, {
+    const res = await fetch(`${API_BASE_URL}/api/v1/tracks/${trackId}/action`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -56,3 +58,4 @@ export const tracksApi = {
     return res.json();
   },
 };
+

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ViewType, AppVersion, ThermalTelemetry, AgentActivity, HeatAlert } from '../types/navigation';
 import { useFortyGuard } from '../hooks/useFortyGuard';
+import { API_BASE_URL } from '../services/apiConfig';
 
 interface AppContextType {
   version: AppVersion;
@@ -149,7 +150,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const res = await fetch('/api/v1/fortyguard/status');
+        const res = await fetch(`${API_BASE_URL}/api/v1/fortyguard/status`);
         if (res.ok) {
           const data = await res.json();
           setIsBackendConnected(true);

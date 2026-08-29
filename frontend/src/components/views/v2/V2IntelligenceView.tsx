@@ -16,6 +16,7 @@ import {
 import { useApp } from '../../../context/AppContext';
 import { heatIntelligenceApi, ThermalCalculationResult } from '../../../services/heatIntelligenceApi';
 import { mlApi, ForecastResponse } from '../../../services/mlApi';
+import { API_BASE_URL } from '../../../services/apiConfig';
 
 export const V2IntelligenceView: React.FC = () => {
   const { telemetry, activeZone } = useApp();
@@ -31,7 +32,7 @@ export const V2IntelligenceView: React.FC = () => {
 
   useEffect(() => {
     // Fetch 24-hour diurnal profile from fortyguard
-    fetch('/api/v1/fortyguard/diurnal')
+    fetch(`${API_BASE_URL}/api/v1/fortyguard/diurnal`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.profile) {

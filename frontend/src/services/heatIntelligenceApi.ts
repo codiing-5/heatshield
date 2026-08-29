@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig';
+
 export interface ThermalCalculationParams {
   ambient_temp_c: number;
   relative_humidity_pct: number;
@@ -88,7 +90,7 @@ export interface RiskAssessmentSummary {
 
 export const heatIntelligenceApi = {
   async calculateThermalIndices(params: ThermalCalculationParams): Promise<ThermalCalculationResult> {
-    const res = await fetch('/api/v1/heat-intelligence/calculate', {
+    const res = await fetch(`${API_BASE_URL}/api/v1/heat-intelligence/calculate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
@@ -100,7 +102,7 @@ export const heatIntelligenceApi = {
   },
 
   async getSpatialThermalMesh(): Promise<GeoJsonSpatialMesh> {
-    const res = await fetch('/api/v1/heat-intelligence/spatial-mesh');
+    const res = await fetch(`${API_BASE_URL}/api/v1/heat-intelligence/spatial-mesh`);
     if (!res.ok) {
       throw new Error(`Spatial mesh error: ${res.status}`);
     }
@@ -108,7 +110,7 @@ export const heatIntelligenceApi = {
   },
 
   async getRiskAssessment(): Promise<RiskAssessmentSummary> {
-    const res = await fetch('/api/v1/heat-intelligence/risk-assessment');
+    const res = await fetch(`${API_BASE_URL}/api/v1/heat-intelligence/risk-assessment`);
     if (!res.ok) {
       throw new Error(`Risk assessment error: ${res.status}`);
     }
@@ -116,10 +118,11 @@ export const heatIntelligenceApi = {
   },
 
   async interpolateCoordinate(lat: number, lng: number) {
-    const res = await fetch(`/api/v1/heat-intelligence/interpolate?lat=${lat}&lng=${lng}`);
+    const res = await fetch(`${API_BASE_URL}/api/v1/heat-intelligence/interpolate?lat=${lat}&lng=${lng}`);
     if (!res.ok) {
       throw new Error(`Interpolation error: ${res.status}`);
     }
     return res.json();
   },
 };
+

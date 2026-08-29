@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig';
+
 export interface ForecastPoint {
   horizon_hours: number;
   timestamp_offset: string;
@@ -59,7 +61,7 @@ export interface MitigationResult {
 
 export const mlApi = {
   async getForecast(zoneName: string, ambient: number, surface: number, humidity: number): Promise<ForecastResponse> {
-    const res = await fetch('/api/v1/ml/forecast', {
+    const res = await fetch(`${API_BASE_URL}/api/v1/ml/forecast`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -77,7 +79,7 @@ export const mlApi = {
   },
 
   async getAnomalies(zoneName: string = 'Sector 7 - Downtown Core'): Promise<AnomalyDetectionResponse> {
-    const res = await fetch(`/api/v1/ml/anomalies?zone_name=${encodeURIComponent(zoneName)}`);
+    const res = await fetch(`${API_BASE_URL}/api/v1/ml/anomalies?zone_name=${encodeURIComponent(zoneName)}`);
     if (!res.ok) {
       throw new Error(`Anomalies API error: ${res.status}`);
     }
@@ -85,7 +87,7 @@ export const mlApi = {
   },
 
   async simulateMitigation(params: MitigationParams): Promise<MitigationResult> {
-    const res = await fetch('/api/v1/ml/simulate-mitigation', {
+    const res = await fetch(`${API_BASE_URL}/api/v1/ml/simulate-mitigation`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
@@ -96,3 +98,4 @@ export const mlApi = {
     return res.json();
   },
 };
+

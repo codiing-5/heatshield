@@ -1,3 +1,5 @@
+import { API_BASE_URL } from './apiConfig';
+
 export interface AgentToolCall {
   tool_name: string;
   arguments: Record<string, unknown>;
@@ -62,7 +64,7 @@ export interface RegisteredTool {
 
 export const agentApi = {
   async getRoster(): Promise<AgentRosterItem[]> {
-    const res = await fetch('/api/v1/agents/roster');
+    const res = await fetch(`${API_BASE_URL}/api/v1/agents/roster`);
     if (!res.ok) {
       throw new Error(`Roster API error: ${res.status}`);
     }
@@ -70,7 +72,7 @@ export const agentApi = {
   },
 
   async runOrchestration(zoneName: string): Promise<OrchestrationResponse> {
-    const res = await fetch(`/api/v1/agents/orchestrate?zone_name=${encodeURIComponent(zoneName)}`, {
+    const res = await fetch(`${API_BASE_URL}/api/v1/agents/orchestrate?zone_name=${encodeURIComponent(zoneName)}`, {
       method: 'POST',
     });
     if (!res.ok) {
@@ -80,7 +82,7 @@ export const agentApi = {
   },
 
   async chat(userMessage: string, activeZone: string, targetAgent: string = 'orchestrator'): Promise<AgentChatResponse> {
-    const res = await fetch('/api/v1/agents/chat', {
+    const res = await fetch(`${API_BASE_URL}/api/v1/agents/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -96,10 +98,11 @@ export const agentApi = {
   },
 
   async getTools(): Promise<RegisteredTool[]> {
-    const res = await fetch('/api/v1/agents/tools');
+    const res = await fetch(`${API_BASE_URL}/api/v1/agents/tools`);
     if (!res.ok) {
       throw new Error(`Tools API error: ${res.status}`);
     }
     return res.json();
   },
 };
+

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ThermalTelemetry } from '../types/navigation';
+import { API_BASE_URL } from '../services/apiConfig';
 
 export interface FortyGuardProvenance {
   provider: string;
@@ -49,9 +50,10 @@ export function useFortyGuard(pollingIntervalMs: number = 10000) {
   const fetchTelemetry = useCallback(async () => {
     try {
       const [telemetryRes, nodesRes] = await Promise.all([
-        fetch('/api/v1/fortyguard/telemetry'),
-        fetch('/api/v1/fortyguard/nodes'),
+        fetch(`${API_BASE_URL}/api/v1/fortyguard/telemetry`),
+        fetch(`${API_BASE_URL}/api/v1/fortyguard/nodes`),
       ]);
+
 
       if (!telemetryRes.ok) {
         throw new Error(`Telemetry HTTP error: ${telemetryRes.status}`);
