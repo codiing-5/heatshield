@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: heatshield_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=HEATSHIELD
+      - API_V1_STR=/api/v1
+      - FORTYGUARD_MODE=SANDBOX
+      - CORS_ORIGINS=["http://localhost:5173","http://localhost:80","http://localhost"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - heatshield_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: heatshield_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - heatshield_network
+
+networks:
+  heatshield_network:
+    driver: bridge
