@@ -151,6 +151,7 @@ class MultiAgentOrchestrator:
                     "You are an active Heat Intelligence AI assistant for HeatShield / V2 Thermora. "
                     "Provide direct, authoritative, and concise answers immediately without outputting internal reasoning, "
                     "chain-of-thought steps, or preliminary commentary. Do not act as a reflective persona—respond directly to the user's prompt. "
+                    "Do not use markdown bolding, asterisks (*), or star decorators anywhere in your output. Return clean, unformatted plain text with line breaks and plain numbers. "
                     f"Active Municipal Sector: {zone}. "
                     f"Real-Time FortyGuard Telemetry: Surface Asphalt Temp: {surf_temp}°C, "
                     f"Ambient Air Temp: {amb_temp}°C, Wet-Bulb Globe Temp (WBGT): {wbgt_temp}°C, "
@@ -165,10 +166,11 @@ class MultiAgentOrchestrator:
                 if req.history:
                     for h_msg in req.history[-12:]:
                         role = "user" if h_msg.role == "user" else "model"
-                        contents.append({"role": role, "parts": [{"text": h_msg.text}]})
+                        clean_history_text = h_msg.text.replace("*", "")
+                        contents.append({"role": role, "parts": [{"text": clean_history_text}]})
                 
                 # Add current user prompt
-                contents.append({"role": "user", "parts": [{"text": req.user_message}]})
+                contents.append({"role": "user", "parts": [{"text": req.user_message.replace("*", "")}]})
 
                 model_endpoint = req.model_name or "gemini-2.5-flash"
                 if "gemini" not in model_endpoint:
@@ -197,7 +199,8 @@ class MultiAgentOrchestrator:
                             # Strip out any <thought> or <thinking> tags if present
                             clean_text = re.sub(r"<thought>.*?</thought>", "", raw_text, flags=re.DOTALL)
                             clean_text = re.sub(r"<thinking>.*?</thinking>", "", clean_text, flags=re.DOTALL)
-                            clean_text = clean_text.strip()
+                            # Strip all markdown asterisks / stars
+                            clean_text = clean_text.replace("*", "").strip()
                             if clean_text:
                                 return AgentChatResponse(
                                     agent_id=agent_id,
@@ -210,24 +213,24 @@ class MultiAgentOrchestrator:
                 # Fall through to dynamic direct response engine
                 pass
 
-        # 2. Dynamic Direct Response Engine (Zero-Mock, Contextual Synthesis)
+        # 2. Dynamic Direct Response Engine (Zero-Mock, Contextual Synthesis, Asterisk-Free)
         history_context = ""
         if req.history:
             history_context = f" [Turn {len(req.history) + 1} Memory Active]"
 
-        # Direct, authoritative response tailored to the user's prompt
+        # Direct, authoritative response tailored to the user's prompt without asterisks
         if any(w in msg_lower for w in ["wbgt", "stress", "heat index", "osha", "work-rest", "ratio"]):
             reply = (
                 f"### Thermal Stress & Physiological Analysis — {zone}{history_context}\n\n"
-                f"**FortyGuard Sensor Telemetry:**\n"
-                f"• **Surface Asphalt:** {surf_temp}°C (Direct Sensor FG-772)\n"
-                f"• **Ambient Air:** {amb_temp}°C | **Relative Humidity:** {humidity}%\n"
-                f"• **ISO 7243 WBGT:** **{wbgt_temp}°C** ({risk} Danger Threshold)\n"
-                f"• **NOAA Heat Index:** {hi_temp}°C\n\n"
-                f"**Mandated Safety Directives:**\n"
-                f"1. **Work-Rest Schedule:** Enforce mandatory **15 minutes work / 45 minutes shaded rest** per hour for outdoor laborers.\n"
-                f"2. **Hydration Requirement:** Minimum **1.0 Liter/hour** electrolyte water intake.\n"
-                f"3. **Surveillance:** Real-time monitoring for acute heat exhaustion and heat stroke symptoms."
+                f"FortyGuard Sensor Telemetry:\n"
+                f"• Surface Asphalt: {surf_temp}°C (Direct Sensor FG-772)\n"
+                f"• Ambient Air: {amb_temp}°C | Relative Humidity: {humidity}%\n"
+                f"• ISO 7243 WBGT: {wbgt_temp}°C ({risk} Danger Threshold)\n"
+                f"• NOAA Heat Index: {hi_temp}°C\n\n"
+                f"Mandated Safety Directives:\n"
+                f"1. Work-Rest Schedule: Enforce mandatory 15 minutes work / 45 minutes shaded rest per hour for outdoor laborers.\n"
+                f"2. Hydration Requirement: Minimum 1.0 Liter/hour electrolyte water intake.\n"
+                f"3. Surveillance: Real-time monitoring for acute heat exhaustion and heat stroke symptoms."
             )
         elif any(w in msg_lower for w in ["mitigat", "cool", "shade", "misting", "albedo", "coating", "canopy", "simulat"]):
             sim = await agent_tools.execute_tool(
@@ -244,52 +247,55 @@ class MultiAgentOrchestrator:
             reduced_surf = round(surf_temp - s_data["surface_temp_reduction_c"], 1)
             reply = (
                 f"### Microclimate Cooling Simulation — {zone}{history_context}\n\n"
-                f"**Physics-Guided Intervention Impact:**\n"
-                f"• **High-Albedo Cool Pavement (+0.35 albedo):** Lowers surface asphalt from {surf_temp}°C to **{reduced_surf}°C** (-{s_data['surface_temp_reduction_c']}°C delta).\n"
-                f"• **High-Pressure Misting Arrays (40% coverage):** Drops perceived WBGT by **-{s_data['wbgt_reduction_c']}°C** along pedestrian arteries.\n"
-                f"• **Vegetative Canopy Expansion (+25%):** Increases natural shade coverage and attenuates radiative heat.\n"
-                f"• **Health Outcome:** **{s_data['heat_stroke_risk_mitigation_pct']}% reduction** in acute heat injury risk ({s_data['intervention_feasibility_score'] * 100}% feasibility score)."
+                f"Physics-Guided Intervention Impact:\n"
+                f"• High-Albedo Cool Pavement (+0.35 albedo): Lowers surface asphalt from {surf_temp}°C to {reduced_surf}°C (-{s_data['surface_temp_reduction_c']}°C delta).\n"
+                f"• High-Pressure Misting Arrays (40% coverage): Drops perceived WBGT by -{s_data['wbgt_reduction_c']}°C along pedestrian arteries.\n"
+                f"• Vegetative Canopy Expansion (+25%): Increases natural shade coverage and attenuates radiative heat.\n"
+                f"• Health Outcome: {s_data['heat_stroke_risk_mitigation_pct']}% reduction in acute heat injury risk ({s_data['intervention_feasibility_score'] * 100}% feasibility score)."
             )
         elif any(w in msg_lower for w in ["worker", "labor", "elderly", "shelter", "demographic", "vulnerab", "population"]):
             demo = await agent_tools.execute_tool("query_demographic_vulnerability", {"zone_name": zone})
             d_data = demo["result"]
             reply = (
                 f"### Demographic Exposure & Shelter Activation — {zone}{history_context}\n\n"
-                f"**Vulnerability Metrics:**\n"
-                f"• **Active Outdoor Workers:** **{d_data['outdoor_workers']:,} laborers** in high-exposure job sites.\n"
-                f"• **Vulnerable Elderly Population:** **{d_data['elderly_count']:,} seniors** in thermal hotspot sectors.\n"
-                f"• **Composite Vulnerability Index:** **{d_data['vulnerability_index']}**\n\n"
-                f"**Dispatched Interventions:**\n"
-                f"1. **Cooling Shelters:** Activated 3 municipal cooling centers with auxiliary HVAC power.\n"
-                f"2. **Transit Support:** Dispatched 4 mobile air-conditioned cooling buses along public walkways.\n"
-                f"3. **Broadcast Alerts:** Targeted SMS hydration notifications sent to outdoor work crews."
+                f"Vulnerability Metrics:\n"
+                f"• Active Outdoor Workers: {d_data['outdoor_workers']:,} laborers in high-exposure job sites.\n"
+                f"• Vulnerable Elderly Population: {d_data['elderly_count']:,} seniors in thermal hotspot sectors.\n"
+                f"• Composite Vulnerability Index: {d_data['vulnerability_index']}\n\n"
+                f"Dispatched Interventions:\n"
+                f"1. Cooling Shelters: Activated 3 municipal cooling centers with auxiliary HVAC power.\n"
+                f"2. Transit Support: Dispatched 4 mobile air-conditioned cooling buses along public walkways.\n"
+                f"3. Broadcast Alerts: Targeted SMS hydration notifications sent to outdoor work crews."
             )
         elif any(w in msg_lower for w in ["grid", "energy", "power", "hvac", "electric", "substation", "brownout"]):
             grid = await agent_tools.execute_tool("calculate_hvac_load_buffer", {"zone_name": zone})
             g_data = grid["result"]
             reply = (
                 f"### Electrical Grid & Substation Thermal Protection — {zone}{history_context}\n\n"
-                f"**Grid Load Telemetry:**\n"
-                f"• **Projected HVAC Peak Demand:** **{g_data['projected_peak_mw']} MW** ({g_data['substation_capacity_utilization_pct']}% substation capacity).\n"
-                f"• **Brownout Risk Index:** **{g_data['brownout_risk_score']} / 100**\n\n"
-                f"**Automated Shaving Actions:**\n"
-                f"• **Thermal Pre-Cooling:** Municipal buildings pre-cooled 2 hours ahead of peak thermal load.\n"
-                f"• **Peak Load Shaving:** Successfully buffered **{g_data['peak_load_reduction_pct']}%** of electrical load ({g_data['mw_buffered']} MW reserved)."
+                f"Grid Load Telemetry:\n"
+                f"• Projected HVAC Peak Demand: {g_data['projected_peak_mw']} MW ({g_data['substation_capacity_utilization_pct']}% substation capacity).\n"
+                f"• Brownout Risk Index: {g_data['brownout_risk_score']} / 100\n\n"
+                f"Automated Shaving Actions:\n"
+                f"• Thermal Pre-Cooling: Municipal buildings pre-cooled 2 hours ahead of peak thermal load.\n"
+                f"• Peak Load Shaving: Successfully buffered {g_data['peak_load_reduction_pct']}% of electrical load ({g_data['mw_buffered']} MW reserved)."
             )
         else:
             reply = (
                 f"### V2 Thermora Heat Intelligence — {zone}{history_context}\n\n"
-                f"Direct analysis for: **\"{req.user_message}\"**\n\n"
-                f"**Current Microclimate Conditions:**\n"
-                f"• **Surface Asphalt:** **{surf_temp}°C** (FortyGuard IoT Sensor Fleet)\n"
-                f"• **Ambient Air:** **{amb_temp}°C** (Humidity: {humidity}%)\n"
-                f"• **WBGT Heat Stress:** **{wbgt_temp}°C** (**{risk} Danger Threshold**)\n"
-                f"• **UV Exposure:** **{uv} Extreme**\n\n"
-                f"**Action Directives:**\n"
-                f"1. **Surveillance:** Sentinel radar is actively logging temperature gradients across {zone}.\n"
-                f"2. **Intervention:** Automated misting arrays and cool pavements are ready for dispatch.\n"
-                f"3. **Labor Safety:** 15-minute shaded rest breaks are enforced on all active work sites."
+                f"Direct analysis for: \"{req.user_message}\"\n\n"
+                f"Current Microclimate Conditions:\n"
+                f"• Surface Asphalt: {surf_temp}°C (FortyGuard IoT Sensor Fleet)\n"
+                f"• Ambient Air: {amb_temp}°C (Humidity: {humidity}%)\n"
+                f"• WBGT Heat Stress: {wbgt_temp}°C ({risk} Danger Threshold)\n"
+                f"• UV Exposure: {uv} Extreme\n\n"
+                f"Action Directives:\n"
+                f"1. Surveillance: Sentinel radar is actively logging temperature gradients across {zone}.\n"
+                f"2. Intervention: Automated misting arrays and cool pavements are ready for dispatch.\n"
+                f"3. Labor Safety: 15-minute shaded rest breaks are enforced on all active work sites."
             )
+
+        # Final sanitization: strip any remaining asterisks
+        reply = reply.replace("*", "").strip()
 
         return AgentChatResponse(
             agent_id=agent_id,

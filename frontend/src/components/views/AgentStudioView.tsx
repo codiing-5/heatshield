@@ -133,7 +133,7 @@ export const AgentStudioView: React.FC = () => {
         id: `agent-${Date.now()}`,
         sender: 'agent',
         agentName: reply.agent_name,
-        text: reply.reply_message,
+        text: (reply.reply_message || '').replace(/\*/g, '').trim(),
         evidence: reply.evidence_snippet,
         tools: reply.recommended_tools,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
