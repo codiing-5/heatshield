@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ViewType, ThermalTelemetry, AgentActivity, HeatAlert } from '../types/navigation';
+import { ViewType, AppVersion, ThermalTelemetry, AgentActivity, HeatAlert } from '../types/navigation';
 import { useFortyGuard } from '../hooks/useFortyGuard';
 
 interface AppContextType {
+  version: AppVersion;
+  setVersion: (v: AppVersion) => void;
   activeView: ViewType;
   setActiveView: (view: ViewType) => void;
   telemetry: ThermalTelemetry;
@@ -33,8 +35,8 @@ const defaultTelemetry: ThermalTelemetry = {
 const initialAgentActivities: AgentActivity[] = [
   {
     id: 'act-01',
-    agentName: 'Sentinel Agent (Risk Radar)',
-    agentRole: 'Real-time thermal anomaly detector',
+    agentName: 'Heat Sentinel Agent',
+    agentRole: 'Thermal anomaly & WBGT radar',
     action: 'Triggered WBGT threshold alert (>31°C) in high-density residential zone',
     targetZone: 'Sector 7 - Downtown Core',
     status: 'ALERT',
@@ -55,7 +57,7 @@ const initialAgentActivities: AgentActivity[] = [
     id: 'act-03',
     agentName: 'Urban Cooling Strategist',
     agentRole: 'Microclimate intervention optimizer',
-    action: 'Generated misting canon activation schedule for public transit hubs',
+    action: 'Generated misting cannon activation schedule for public transit hubs',
     targetZone: 'Central Public Transit Terminal',
     status: 'EXECUTING',
     timestamp: '11 mins ago',
@@ -63,7 +65,7 @@ const initialAgentActivities: AgentActivity[] = [
   },
   {
     id: 'act-04',
-    agentName: 'Energy & Grid Balancer',
+    agentName: 'Grid & Energy Balancer',
     agentRole: 'HVAC load and brownout prevention agent',
     action: 'Pre-cooled municipal facilities ahead of 14:00 peak thermal surge',
     targetZone: 'Government Administrative Complex',
@@ -97,7 +99,19 @@ const initialAlerts: HeatAlert[] = [
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeView, setActiveView] = useState<ViewType>('command-center');
+  // Check URL param ?v=1 or ?v=2 or default to v2 for enhanced AI experience
+  const getInitialVersion = (): AppVersion => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get('v');
+      if (v === '1' || v === 'v1') return 'v1';
+      if (v === '2' || v === 'v2') return 'v2';
+    }
+    return 'v2';
+  };
+
+  const [version, setVersionState] = useState<AppVersion>(getInitialVersion);
+  const [activeView, setActiveView] = useState<ViewType>(version === 'v2' ? 'v2-home' : 'command-center');
   const [telemetry, setTelemetry] = useState<ThermalTelemetry>(defaultTelemetry);
   const [agentActivities] = useState<AgentActivity[]>(initialAgentActivities);
   const [alerts] = useState<HeatAlert[]>(initialAlerts);
@@ -106,6 +120,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeZone, setActiveZone] = useState<string>('Sector 7 - Downtown Core');
 
   const { telemetry: streamTelemetry, provenance, refetch } = useFortyGuard(10000);
+
+  const setVersion = (newVersion: AppVersion) => {
+    setVersionState(newVersion);
+    if (newVersion === 'v2') {
+      setActiveView('v2-home');
+    } else {
+      setActiveView('command-center');
+    }
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('v', newVersion === 'v2' ? '2' : '1');
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
 
   useEffect(() => {
     if (streamTelemetry) {
@@ -144,6 +172,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider
       value={{
+        version,
+        setVersion,
         activeView,
         setActiveView,
         telemetry,

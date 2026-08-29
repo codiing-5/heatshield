@@ -1,15 +1,32 @@
 # HEATSHIELD — Agentic AI Heat Intelligence Platform
 
-An intelligent, multi-agent urban heat resilience platform leveraging the **FortyGuard Temperature API**, GIS spatial modeling, predictive Machine Learning, and automated domain intervention workflows.
+[![Build & Tests](https://img.shields.io/badge/Backend%20Tests-36%2F36%20Passed-emerald.svg)](backend/tests)
+[![Primary Data Source](https://img.shields.io/badge/Primary%20Data-FortyGuard%20Temperature%20API-blue.svg)](https://api.fortyguard.com)
+[![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%2B%20TypeScript%20%2B%20Vite-orange.svg)](frontend/)
+[![License](https://img.shields.io/badge/License-MIT-slate.svg)](LICENSE)
+
+An intelligent, autonomous multi-agent urban heat resilience platform leveraging the **FortyGuard Temperature API**, GIS spatial modeling, predictive Machine Learning, and automated domain intervention workflows.
 
 ---
 
-## 🔒 Locked Technology Stack
+## 🌐 Live Public Deployments
 
-- **Frontend:** React 18+, TypeScript, Vite, Tailwind CSS, shadcn/ui utils, Radix UI primitives, Lucide React, Framer Motion, Recharts, MapLibre GL JS (`maplibre-gl`).
-- **Backend:** Python 3.10+, FastAPI, Pydantic v2, Uvicorn, HTTPX.
-- **Primary Hackathon Data Source:** **FortyGuard Temperature API** (High-resolution surface and air microclimate telemetry).
-- **Core Platform:** Heat Intelligence & Thermal Stress Engine (ISO 7243 WBGT, UTCI, NOAA Heat Index, Humidex), GIS Engine (IDW Spatial Interpolation & GeoJSON), Predictive ML Models, Multi-Agent Orchestrator (Sentinel, Vulnerable Advisor, Cooling Strategist, Grid Balancer), Seven Domain Action Tracks.
+| Version | Description | Verified Public URL |
+|---|---|---|
+| **Version 1 (Stable)** | Tactical Dark Mode Command Center for municipal incident coordinators | [https://4422c14a39380e44-111-92-126-156.serveousercontent.com](https://4422c14a39380e44-111-92-126-156.serveousercontent.com) |
+| **Version 2 (AI Experience)** | Google-inspired clean conversational heat intelligence assistant & agent studio | [https://ea44cdd33e254571-111-92-126-156.serveousercontent.com](https://ea44cdd33e254571-111-92-126-156.serveousercontent.com) |
+
+> **Note:** Both Version 1 and Version 2 are simultaneously live and accessible. You can also switch between versions in real-time via the **Version Switcher Pill** in the top navigation bar.
+
+---
+
+## 🎯 The Problem
+
+Urban Heat Islands (UHI) and extreme heatwaves present critical threats to public health, outdoor laborers, municipal infrastructure, and electrical grid stability. Traditional weather forecasts only measure regional air temperatures in the shade, completely missing **hyperlocal asphalt surface heat spikes (exceeding 50°C)** and complex **Wet-Bulb Globe Temperature (WBGT)** physiological stress.
+
+## 💡 The Solution: HEATSHIELD
+
+HEATSHIELD ingests authoritative high-resolution microclimate telemetry from the **FortyGuard Temperature API**, computes scientific physiological heat stress indices (ISO 7243 WBGT, UTCI, NOAA Heat Index), simulates cooling interventions with predictive ML, and coordinates 4 autonomous specialized AI agents to execute immediate tactical mitigation workflows.
 
 ---
 
@@ -18,58 +35,60 @@ An intelligent, multi-agent urban heat resilience platform leveraging the **Fort
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │ FortyGuard Temperature API (Primary Hackathon Data Source)             │
-│ • Surface Temperature & Asphalt Readings • Microclimate IoT Sensors   │
+│ • High-Resolution Surface & Asphalt Telemetry • IoT Sensor Fleet Nodes │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │ Backend Services Layer (FastAPI + Python 3.11)                        │
-│ • FortyGuard Dual-Mode Client & High-Fidelity Sandbox                  │
-│ • Scientific Thermal Indices (Stull WBGT, UTCI, NOAA Heat Index)      │
-│ • GIS Engine: Inverse Distance Weighting & GeoJSON FeatureCollection   │
-│ • Predictive ML Engine: Multi-Horizon Forecaster & Cooling Simulator   │
-│ • Autonomous Multi-Agent Orchestrator & Tool Execution Registry       │
-│ • Seven Domain Tracks Engine (Infrastructure, Health, Labor, etc.)     │
+│ • FortyGuard Dual-Mode Client & Deterministic High-Fidelity Sandbox   │
+│ • Scientific Thermal Indices Engine (Stull WBGT, UTCI, NOAA Index)     │
+│ • GIS Engine: Inverse Distance Weighting (IDW) & GeoJSON Polygons     │
+│ • Predictive ML Engine: Multi-Horizon Forecaster & Mitigation Physics  │
+│ • Multi-Agent Orchestrator: Sentinel, Vulnerable, Cooling, Grid       │
+│ • Seven Domain Tracks Engine (Labor, Health, Transit, Energy, etc.)    │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│ Frontend Command Center (React 18 + TypeScript + Vite)                 │
-│ • MapLibre GL Interactive Dark Vector Geospatial Map                   │
-│ • Recharts 24-Hour Diurnal Curves & Multi-Horizon Predictions          │
-│ • Agent Studio with Step-by-Step Reasoning & Conversational AI Chat   │
-│ • Seven-Track Action Hub & Immediate Tactical Dispatchers              │
+│ Frontend Experiences (React 18 + TypeScript + Vite)                    │
+│                                                                        │
+│ ┌──────────────────────────────────┐ ┌───────────────────────────────┐ │
+│ │ VERSION 1 — STABLE               │ │ VERSION 2 — AI EXPERIENCE     │ │
+│ │ • Tactical Dark Command Center   │ │ • Google-Inspired Clean UI    │ │
+│ │ • 24-Hour Diurnal Curves         │ │ • ChatGPT-Style Assistant     │ │
+│ │ • MapLibre GL Vector Map         │ │ • Live AI Agent Status Cards  │ │
+│ │ • Multi-Agent Reason Trace       │ │ • Instant AI Situation Brief  │ │
+│ └──────────────────────────────────┘ └───────────────────────────────┘ │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Quickstart Guide
+## 🤖 Specialized AI Agents & Multi-Agent Orchestration
 
-### 1. Backend Setup
-```bash
-cd backend
-# Create virtual environment & install locked dependencies
-uv venv .venv --python 3.11
-uv pip install -r requirements.txt
+HEATSHIELD coordinates 4 specialized autonomous agents with dedicated tool execution registries:
 
-# Run server with hot-reload
-python -m uvicorn app.main:app --reload --port 8000
-```
-- API Documentation is live at: `http://127.0.0.1:8000/docs`
-- Interactive OpenAPI ReDoc: `http://127.0.0.1:8000/redoc`
+1. **Heat Sentinel Agent (`sentinel`)**: Continuously monitors FortyGuard telemetry for thermal anomaly spikes and dangerous WBGT thresholds (>31°C).
+   - *Tools:* `query_fortyguard_sensors`, `calculate_wbgt_stress`
+2. **Vulnerable Population Advisor (`vulnerable`)**: Cross-references thermal risk polygons with demographic rasters (outdoor laborers, seniors, schools) to automate cooling shelter routing.
+   - *Tools:* `query_demographic_vulnerability`, `dispatch_shelter_routing_alert`, `enforce_labor_rest_mandate`
+3. **Urban Cooling Strategist (`mitigation`)**: Physics-guided ML simulation testing high-albedo coatings, misting arrays, and canopy shading to optimize surface asphalt cooling deltas.
+   - *Tools:* `simulate_cooling_intervention`, `query_fortyguard_sensors`
+4. **Grid & Energy Balancer (`grid`)**: Forecasts electrical grid HVAC surge demand and schedules pre-cooling cycles across municipal substations to prevent brownouts.
+   - *Tools:* `calculate_hvac_load_buffer`, `query_fortyguard_sensors`
 
-### 2. Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-```
-- Dashboard will be live at: `http://localhost:5173`
+---
 
-### 3. Windows 1-Click Launchers
-- Start Backend: double-click `run_backend.bat`
-- Start Frontend: double-click `run_frontend.bat`
+## 🌡️ FortyGuard Temperature API Integration
+
+HEATSHIELD natively connects to FortyGuard microclimate endpoints:
+- `GET /temperature/summary`: High-resolution ambient, surface, and relative humidity telemetry.
+- `GET /telemetry/sensors`: IoT sensor fleet coordinates and status across municipal zones.
+- `GET /heat-island/index`: Urban Heat Island baseline differential calculation.
+- `GET /temperature/diurnal`: 24-hour diurnal microclimate curve data.
+
+*Dual-Mode Operation:* If `FORTYGUARD_API_KEY` is provided, live HTTP requests are streamed with in-memory TTL caching; if unconfigured or during offline testing, the system seamlessly uses deterministic high-fidelity sandbox telemetry with complete provenance metadata.
 
 ---
 
@@ -96,16 +115,57 @@ npm run dev
 
 ---
 
-## 📋 11-Stage Master Workflow
-- [x] **Stage 0: Audit & Foundation**
-- [x] **Stage 1: Product + UX Architecture**
-- [x] **Stage 2: FortyGuard Integration**
-- [x] **Stage 3: Data + Heat Intelligence**
-- [x] **Stage 4: ML Engine**
-- [x] **Stage 5: Agentic AI**
-- [x] **Stage 6: Premium UI/UX Implementation**
-- [x] **Stage 7: Seven-Track Capabilities**
-- [x] **Stage 8: End-to-End Integration**
-- [ ] **Stage 9: Security + Testing**
-- [ ] **Stage 10: Deployment**
-- [ ] **Stage 11: Hackathon Finalization**
+## 🚀 How to Run Locally
+
+### Prerequisites
+- Python 3.10+ (Recommended: Python 3.11)
+- Node.js 18+ and npm
+
+### 1. Backend Setup
+```bash
+cd backend
+python -m venv .venv
+# On Windows:
+.\.venv\Scripts\activate
+# On Linux/macOS:
+source .venv/bin/activate
+
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
+```
+- Interactive Swagger API Docs: `http://127.0.0.1:8000/docs`
+- Redoc API Catalog: `http://127.0.0.1:8000/redoc`
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+- Access Frontend at: `http://localhost:5173`
+
+### 3. Quick Windows Launchers
+- Start Backend: double-click `run_backend.bat`
+- Start Frontend: double-click `run_frontend.bat`
+
+---
+
+## 🧪 Testing & Verification
+
+Run the comprehensive test suite:
+```bash
+# Run 36/36 Backend Unit & Integration Tests
+pytest backend/tests -v
+
+# Run Automated Post-Deployment Smoke Test
+python scripts/deploy_verify.py --base-url http://127.0.0.1:8000/api/v1 --ui-url http://127.0.0.1:8000
+```
+
+---
+
+## ☁️ Deployment Guide
+
+Detailed deployment instructions for free-tier platforms (**Render**, **Railway**, **Vercel**, and **Docker**) are available in [`docs/deployment.md`](docs/deployment.md).
+- **Render**: Blueprint ready with `render.yaml`
+- **Vercel**: Configured with `vercel.json`
+- **Docker**: `docker-compose up --build`

@@ -4,7 +4,16 @@ export type ViewType =
   | 'agent-studio'
   | 'analytics'
   | 'seven-tracks'
-  | 'settings';
+  | 'settings'
+  | 'v2-home'
+  | 'v2-chat'
+  | 'v2-intelligence'
+  | 'v2-map'
+  | 'v2-agents'
+  | 'v2-alerts'
+  | 'v2-settings';
+
+export type AppVersion = 'v1' | 'v2';
 
 export type ThermalRiskLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'EXTREME' | 'CRITICAL';
 

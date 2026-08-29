@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,7 +38,61 @@
   }
 }
 
-/* Custom Glassmorphism & Scrollbars */
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================================
+   Google-Inspired Semantic Color System (Version 2 Tokens)
+   ========================================================== */
+.g-surface {
+  background-color: #FFFFFF;
+  border: 1px solid #E8EAED;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.08), 0 1px 3px 1px rgba(60, 64, 67, 0.05);
+}
+
+.g-surface-subtle {
+  background-color: #F8F9FA;
+  border: 1px solid #DADCE0;
+}
+
+.g-surface-hover:hover {
+  box-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.12);
+  border-color: #DADCE0;
+}
+
+/* Semantic Badges / Chips */
+.g-chip-safe {
+  background-color: #E6F4EA;
+  color: #137333;
+  border: 1px solid #CEEAD6;
+}
+
+.g-chip-info {
+  background-color: #E8F0FE;
+  color: #1967D2;
+  border: 1px solid #D2E3FC;
+}
+
+.g-chip-caution {
+  background-color: #FEF7E0;
+  color: #B06000;
+  border: 1px solid #FEEFC3;
+}
+
+.g-chip-elevated {
+  background-color: #FEF0ED;
+  color: #C5221F;
+  border: 1px solid #FAD2CF;
+}
+
+.g-chip-critical {
+  background-color: #FCE8E6;
+  color: #C5221F;
+  border: 1px solid #FAD2CF;
+}
+
+/* Version 1 Glassmorphism */
 .glass-panel {
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(16px);
@@ -59,14 +115,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(249, 115, 22, 0.4);
+  background: rgba(148, 163, 184, 0.5);
 }
