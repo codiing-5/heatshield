@@ -12,10 +12,9 @@ An intelligent, autonomous multi-agent urban heat resilience platform leveraging
 ## 🌐 Live Public Deployments
 
 | Version | Description | Verified Public URL |
-|---|---|---|
-| **Version 1 (Stable)** | Tactical Dark Mode Command Center for municipal incident coordinators | [https://32ef0d9b94e41e1b-111-92-126-156.serveousercontent.com](https://32ef0d9b94e41e1b-111-92-126-156.serveousercontent.com) |
-| **Version 2 (Thermora)** | Thermora conversational heat intelligence assistant & multi-agent studio | [https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com](https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com) |
-
+| :--- | :--- | :--- |
+| **Version 1 (Stable)** | Baseline Heat Analytics Engine & Tactical Command Center | https://heatshield-0a6n.onrender.com/?v=1 |
+| **Version 2 (Thermora)** | Dynamic AI Heat Intelligence Engine & Multi-Agent Studio | https://heatshield-0a6n.onrender.com/?v=2 |
 
 > **Note:** Both Version 1 and Version 2 (Thermora) are simultaneously live and accessible. You can also switch between versions in real-time via the **Version Switcher Pill** in the top navigation bar.
 
