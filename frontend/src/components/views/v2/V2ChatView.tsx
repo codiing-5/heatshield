@@ -354,7 +354,7 @@ export const V2ChatView: React.FC = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-130px)] min-h-[600px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
+    <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-130px)] min-h-[600px] bg-white rounded-2xl border border-slate-300 shadow-md overflow-hidden font-sans">
       {/* Top Header */}
       <div className="p-3.5 sm:p-4 px-4 sm:px-6 border-b border-slate-200 bg-white flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -420,7 +420,7 @@ export const V2ChatView: React.FC = () => {
             <div
               className={`max-w-[88%] sm:max-w-[82%] rounded-2xl p-4 md:p-5 shadow-xs transition-all ${
                 msg.sender === 'user'
-                  ? 'bg-blue-600 text-white rounded-tr-xs'
+                  ? 'bg-blue-600 text-white rounded-tr-xs shadow-md'
                   : 'bg-white border border-slate-200 text-slate-900 rounded-tl-xs'
               }`}
             >
@@ -532,9 +532,9 @@ export const V2ChatView: React.FC = () => {
       </div>
 
       {/* ==========================================================
-          CLEAN LIGHT-THEME COMMAND CHATBAR CONTAINER
+          HIGH-VISIBILITY LIGHT-THEME COMMAND CHATBAR CONTAINER
           ========================================================== */}
-      <div className="p-3 sm:p-4 px-4 sm:px-6 bg-slate-50 border-t border-slate-200 flex-shrink-0 relative">
+      <div className="p-3 sm:p-4 px-4 sm:px-6 bg-slate-100/80 border-t border-slate-200 flex-shrink-0 relative">
         {/* Trigger Popup Menu: @ Agent Mention */}
         <AnimatePresence>
           {showMentionMenu && (
@@ -542,7 +542,7 @@ export const V2ChatView: React.FC = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="absolute bottom-full left-6 mb-2 w-80 bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5"
+              className="absolute bottom-full left-6 mb-2 w-80 bg-white text-slate-900 border border-slate-300 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5"
             >
               <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 border-b border-slate-100">
                 <AtSign className="w-3 h-3 text-blue-600" /> Mention Agent / Context
@@ -582,7 +582,7 @@ export const V2ChatView: React.FC = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="absolute bottom-full left-6 mb-2 w-80 bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5"
+              className="absolute bottom-full left-6 mb-2 w-80 bg-white text-slate-900 border border-slate-300 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5"
             >
               <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 border-b border-slate-100">
                 <Command className="w-3 h-3 text-emerald-600" /> Quick Operational Actions
@@ -615,8 +615,8 @@ export const V2ChatView: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Clean Light Command Input Container */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-3 sm:p-3.5 shadow-xs transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+        {/* High-Contrast Input Card Container */}
+        <div className="bg-white border border-slate-300 rounded-2xl p-3 sm:p-3.5 shadow-md transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200">
           {/* File Attachment Chips */}
           {attachedFiles.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-2.5 pb-2 border-b border-slate-100">
@@ -639,7 +639,7 @@ export const V2ChatView: React.FC = () => {
             </div>
           )}
 
-          {/* Multi-line Textarea */}
+          {/* Multi-line Textarea with High Contrast */}
           <textarea
             ref={textareaRef}
             rows={2}
@@ -666,7 +666,7 @@ export const V2ChatView: React.FC = () => {
                 : 'Ask V1 Stable about thermal stress, cooling simulations, or OSHA limits...'
             }
             disabled={isThinking}
-            className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-sm outline-none resize-none leading-relaxed"
+            className="w-full bg-transparent text-slate-900 placeholder:text-slate-500 text-sm outline-none resize-none leading-relaxed"
           />
 
           {/* Bottom Toolbar & Controls */}
@@ -686,7 +686,7 @@ export const V2ChatView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border border-slate-200 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 border border-slate-300 transition-colors cursor-pointer"
                 title="Attach files or thermal maps (+)"
               >
                 <Plus className="w-4 h-4" />
@@ -697,7 +697,7 @@ export const V2ChatView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsModelDropdownOpen((prev) => !prev)}
-                  className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                 >
                   <Sparkles className="w-3 h-3 text-blue-600" />
                   <span className="font-bold text-slate-800">{activeModel.name}</span>
@@ -711,9 +711,9 @@ export const V2ChatView: React.FC = () => {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
-                      className="absolute bottom-full left-0 mb-2 w-72 bg-white text-slate-900 border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5"
+                      className="absolute bottom-full left-0 mb-2 w-72 bg-white text-slate-900 border border-slate-300 rounded-2xl shadow-xl overflow-hidden z-50 p-1.5"
                     >
-                      <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                      <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100">
                         Select Platform Version
                       </div>
                       <div className="py-1 space-y-1">
@@ -765,7 +765,7 @@ export const V2ChatView: React.FC = () => {
         </div>
 
         {/* Footer Guidance */}
-        <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 px-1">
+        <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 px-1">
           <span>Grounding: FortyGuard Ingestion Stream • ISO 7243 WBGT Standard</span>
           <span className="hidden sm:inline">Press Enter to send, Shift+Enter for new line</span>
         </div>
