@@ -58,10 +58,10 @@ export const Shell: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen flex selection:bg-blue-500/20 selection:text-blue-900 transition-colors ${
+      className={`min-h-screen flex transition-colors overflow-x-hidden ${
         isV2
           ? 'bg-[#F8F9FA] text-slate-900'
-          : 'bg-[#0b0f19] text-slate-100 selection:bg-orange-500/30 selection:text-orange-200'
+          : 'bg-[#0b0f19] text-slate-100'
       }`}
     >
       {/* Background ambient lighting for V1 mode only */}
@@ -78,7 +78,7 @@ export const Shell: React.FC = () => {
       {/* Main View Area */}
       <div className="flex-1 flex flex-col min-w-0 z-10 h-screen overflow-hidden">
         <Topbar />
-        <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-5 md:p-8 max-w-7xl w-full mx-auto overflow-y-auto overflow-x-hidden">
           {renderActiveView()}
         </main>
       </div>

@@ -17,6 +17,8 @@ interface AppContextType {
   activeZone: string;
   setActiveZone: (zone: string) => void;
   refetchFortyGuard: () => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
 const defaultTelemetry: ThermalTelemetry = {
@@ -112,7 +114,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const [version, setVersionState] = useState<AppVersion>(getInitialVersion);
-  const [activeView, setActiveView] = useState<ViewType>(version === 'v2' ? 'v2-home' : 'command-center');
+  const [activeView, setActiveViewState] = useState<ViewType>(version === 'v2' ? 'v2-home' : 'command-center');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [telemetry, setTelemetry] = useState<ThermalTelemetry>(defaultTelemetry);
   const [agentActivities] = useState<AgentActivity[]>(initialAgentActivities);
   const [alerts] = useState<HeatAlert[]>(initialAlerts);
@@ -122,13 +125,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const { telemetry: streamTelemetry, provenance, refetch } = useFortyGuard(10000);
 
+  const setActiveView = (view: ViewType) => {
+    setActiveViewState(view);
+    setIsMobileMenuOpen(false);
+  };
+
   const setVersion = (newVersion: AppVersion) => {
     setVersionState(newVersion);
     if (newVersion === 'v2') {
-      setActiveView('v2-home');
+      setActiveViewState('v2-home');
     } else {
-      setActiveView('command-center');
+      setActiveViewState('command-center');
     }
+    setIsMobileMenuOpen(false);
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       url.searchParams.set('v', newVersion === 'v2' ? '2' : '1');
@@ -186,6 +195,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         activeZone,
         setActiveZone,
         refetchFortyGuard: refetch,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
       }}
     >
       {children}

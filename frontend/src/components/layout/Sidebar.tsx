@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Sparkles,
   Home,
-  Thermometer
+  Thermometer,
+  X
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { ViewType } from '../../types/navigation';
@@ -35,7 +36,7 @@ const v1NavItems: NavItem[] = [
 
 const v2NavItems: NavItem[] = [
   { id: 'v2-home', label: 'Overview', sublabel: 'Heat Risk & AI Brief', icon: Home },
-  { id: 'v2-chat', label: 'HEATSHIELD AI', sublabel: 'Conversational Assistant', icon: Sparkles },
+  { id: 'v2-chat', label: 'Thermora AI', sublabel: 'Conversational Assistant', icon: Sparkles },
   { id: 'v2-intelligence', label: 'Heat Intelligence', sublabel: 'Thermal Analytics & ML', icon: Thermometer },
   { id: 'v2-map', label: 'GIS Heat Map', sublabel: 'Interactive Risk Mesh', icon: MapIcon },
   { id: 'v2-agents', label: 'Agent Network', sublabel: 'Multi-Agent Orchestrator', icon: Bot },
@@ -44,52 +45,74 @@ const v2NavItems: NavItem[] = [
 ];
 
 export const Sidebar: React.FC = () => {
-  const { version, activeView, setActiveView } = useApp();
+  const { version, activeView, setActiveView, isMobileMenuOpen, setIsMobileMenuOpen } = useApp();
   const isV2 = version === 'v2';
   const navItems = isV2 ? v2NavItems : v1NavItems;
 
   return (
-    <aside
-      className={`w-64 md:w-72 flex flex-col justify-between h-screen sticky top-0 z-30 select-none transition-colors ${
-        isV2
-          ? 'bg-white border-r border-slate-200 text-slate-900'
-          : 'bg-[#0d1322]/90 border-r border-slate-800/80 text-slate-100'
-      }`}
-    >
-      {/* Brand Header */}
-      <div>
-        <div
-          className={`p-5 border-b flex items-center gap-3.5 ${
-            isV2 ? 'border-slate-200 bg-white' : 'border-slate-800/80 bg-[#0d1322]/90'
-          }`}
-        >
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 md:hidden transition-opacity"
+        />
+      )}
+
+      <aside
+        className={`fixed md:sticky top-0 inset-y-0 left-0 z-50 md:z-30 w-64 md:w-72 flex flex-col justify-between h-screen select-none transition-transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+        } ${
+          isV2
+            ? 'bg-white border-r border-slate-200 text-slate-900'
+            : 'bg-[#0d1322]/95 border-r border-slate-800/80 text-slate-100 backdrop-blur-md'
+        }`}
+      >
+        {/* Brand Header */}
+        <div>
           <div
-            className={`p-2.5 rounded-2xl text-white shadow-sm flex items-center justify-center ${
-              isV2
-                ? 'bg-blue-600'
-                : 'bg-gradient-to-br from-orange-500 to-red-600 shadow-orange-500/25'
+            className={`p-4 sm:p-5 border-b flex items-center justify-between ${
+              isV2 ? 'border-slate-200 bg-white' : 'border-slate-800/80 bg-[#0d1322]/90'
             }`}
           >
-            {isV2 ? <Sparkles className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5 animate-pulse" />}
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h1 className={`text-lg font-bold tracking-tight ${isV2 ? 'text-slate-900' : 'text-white'}`}>
-                HEATSHIELD
-              </h1>
-              <span
-                className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                  isV2 ? 'g-chip-info' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+            <div className="flex items-center gap-3.5">
+              <div
+                className={`p-2.5 rounded-2xl text-white shadow-sm flex items-center justify-center ${
+                  isV2
+                    ? 'bg-blue-600'
+                    : 'bg-gradient-to-br from-orange-500 to-red-600 shadow-orange-500/25'
                 }`}
               >
-                {isV2 ? 'v2.0 AI' : 'v1.0'}
-              </span>
+                {isV2 ? <Sparkles className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5 animate-pulse" />}
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h1 className={`text-lg font-bold tracking-tight ${isV2 ? 'text-slate-900' : 'text-white'}`}>
+                    {isV2 ? 'THERMORA' : 'HEATSHIELD'}
+                  </h1>
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                      isV2 ? 'g-chip-info' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                    }`}
+                  >
+                    {isV2 ? 'v2.0' : 'v1.0'}
+                  </span>
+                </div>
+                <p className={`text-[11px] ${isV2 ? 'text-slate-500' : 'text-slate-400 font-mono'}`}>
+                  {isV2 ? 'Thermora AI Intelligence' : 'Tactical Command Center'}
+                </p>
+              </div>
             </div>
-            <p className={`text-[11px] ${isV2 ? 'text-slate-500' : 'text-slate-400 font-mono'}`}>
-              {isV2 ? 'Heat Intelligence Platform' : 'Tactical Command Center'}
-            </p>
+
+            {/* Mobile Close Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-1.5 rounded-xl md:hidden text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors"
+              title="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        </div>
 
         {/* Navigation Menu */}
         <div className="p-3 space-y-1">
@@ -180,5 +203,6 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
     </aside>
+    </>
   );
 };

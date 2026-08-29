@@ -18,9 +18,34 @@ import { heatIntelligenceApi, ThermalCalculationResult } from '../../../services
 import { mlApi, ForecastResponse } from '../../../services/mlApi';
 import { API_BASE_URL } from '../../../services/apiConfig';
 
+const DEFAULT_DIURNAL_POINTS = [
+  { time: '00:00', ambient_c: 30.5, surface_c: 31.2, wbgt_c: 25.2 },
+  { time: '02:00', ambient_c: 29.8, surface_c: 29.5, wbgt_c: 24.6 },
+  { time: '04:00', ambient_c: 28.9, surface_c: 28.1, wbgt_c: 23.8 },
+  { time: '06:00', ambient_c: 29.4, surface_c: 28.9, wbgt_c: 24.3 },
+  { time: '08:00', ambient_c: 33.1, surface_c: 35.6, wbgt_c: 26.9 },
+  { time: '10:00', ambient_c: 36.8, surface_c: 42.4, wbgt_c: 29.5 },
+  { time: '12:00', ambient_c: 39.8, surface_c: 49.2, wbgt_c: 32.2 },
+  { time: '14:00', ambient_c: 41.6, surface_c: 52.1, wbgt_c: 33.5 },
+  { time: '16:00', ambient_c: 40.2, surface_c: 49.8, wbgt_c: 32.7 },
+  { time: '18:00', ambient_c: 37.1, surface_c: 42.8, wbgt_c: 30.1 },
+  { time: '20:00', ambient_c: 34.3, surface_c: 37.9, wbgt_c: 28.4 },
+  { time: '22:00', ambient_c: 32.2, surface_c: 34.8, wbgt_c: 26.9 },
+];
+
+const mapDiurnalPoints = (points: any[]) => {
+  if (!Array.isArray(points) || points.length === 0) return DEFAULT_DIURNAL_POINTS;
+  return points.map((p, idx) => ({
+    time: p.time || (p.hour !== undefined ? `${String(p.hour).padStart(2, '0')}:00` : `+${idx * 2}h`),
+    surface_c: Number(p.surface_c ?? p.surface_temp_c ?? p.surfaceTemp ?? 35),
+    ambient_c: Number(p.ambient_c ?? p.ambient_temp_c ?? p.ambientTemp ?? 30),
+    wbgt_c: Number(p.wbgt_c ?? p.wet_bulb_temp_c ?? p.wetBulbTemp ?? 26),
+  }));
+};
+
 export const V2IntelligenceView: React.FC = () => {
   const { telemetry, activeZone } = useApp();
-  const [diurnalData, setDiurnalData] = useState<any[]>([]);
+  const [diurnalData, setDiurnalData] = useState<any[]>(DEFAULT_DIURNAL_POINTS);
   const [forecast, setForecast] = useState<ForecastResponse | null>(null);
 
   // Calculator State
@@ -33,22 +58,20 @@ export const V2IntelligenceView: React.FC = () => {
   useEffect(() => {
     // Fetch 24-hour diurnal profile from fortyguard
     fetch(`${API_BASE_URL}/api/v1/fortyguard/diurnal`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
-        if (data && data.profile) {
-          setDiurnalData(data.profile);
+        if (data && Array.isArray(data.points) && data.points.length > 0) {
+          setDiurnalData(mapDiurnalPoints(data.points));
+        } else if (data && Array.isArray(data.profile) && data.profile.length > 0) {
+          setDiurnalData(mapDiurnalPoints(data.profile));
         }
       })
-      .catch(() => {
-        setDiurnalData([
-          { hour: 0, ambient_temp_c: 29.5, surface_temp_c: 30.2, wet_bulb_temp_c: 24.1 },
-          { hour: 4, ambient_temp_c: 27.8, surface_temp_c: 28.0, wet_bulb_temp_c: 23.2 },
-          { hour: 8, ambient_temp_c: 33.4, surface_temp_c: 38.6, wet_bulb_temp_c: 27.5 },
-          { hour: 12, ambient_temp_c: 38.8, surface_temp_c: 48.5, wet_bulb_temp_c: 31.6 },
-          { hour: 14, ambient_temp_c: 40.2, surface_temp_c: 51.4, wet_bulb_temp_c: 32.8 },
-          { hour: 16, ambient_temp_c: 39.0, surface_temp_c: 47.8, wet_bulb_temp_c: 31.0 },
-          { hour: 20, ambient_temp_c: 33.2, surface_temp_c: 35.6, wet_bulb_temp_c: 26.9 },
-        ]);
+      .catch((err) => {
+        console.warn('Using default diurnal data:', err);
+        setDiurnalData(DEFAULT_DIURNAL_POINTS);
       });
 
     // Fetch ML Forecast
@@ -94,40 +117,40 @@ export const V2IntelligenceView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 pb-12 font-sans max-w-6xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 pb-12 font-sans max-w-6xl mx-auto">
       {/* Header */}
-      <div className="border-b border-slate-200 pb-6">
+      <div className="border-b border-slate-200 pb-5 sm:pb-6">
         <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
           <TrendingUp className="w-4 h-4" />
           <span>Scientific Thermal Modeling & Telemetry</span>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Heat Intelligence & Analytics</h1>
-        <p className="text-sm text-slate-600 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Heat Intelligence & Analytics</h1>
+        <p className="text-xs sm:text-sm text-slate-600 mt-1">
           ISO 7243 WBGT, NOAA Heat Index, 24-hour diurnal profiling, and multi-horizon predictive ML in {activeZone}
         </p>
       </div>
 
-      {/* 24-Hour Diurnal Profile Chart (Google Style) */}
-      <div className="p-6 md:p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      {/* 24-Hour Diurnal Profile Chart Card */}
+      <div className="p-4 sm:p-6 md:p-8 bg-white rounded-3xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">24-Hour Diurnal Thermal Curves</h3>
-            <p className="text-xs text-slate-500">Surface asphalt vs Ambient air vs WBGT heat stress thresholds</p>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900">24-Hour Diurnal Thermal Curves</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Surface asphalt vs Ambient air vs WBGT heat stress thresholds</p>
           </div>
-          <div className="flex items-center gap-4 text-xs font-medium">
-            <span className="flex items-center gap-1.5 text-red-600">
-              <span className="w-3 h-3 rounded-full bg-red-500" /> Surface Temp (°C)
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-medium select-none">
+            <span className="flex items-center gap-1.5 text-red-600 bg-red-50/80 px-2.5 py-1 rounded-full border border-red-100">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500" /> Surface Temp (°C)
             </span>
-            <span className="flex items-center gap-1.5 text-blue-600">
-              <span className="w-3 h-3 rounded-full bg-blue-500" /> Ambient Air (°C)
+            <span className="flex items-center gap-1.5 text-blue-600 bg-blue-50/80 px-2.5 py-1 rounded-full border border-blue-100">
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Ambient Air (°C)
             </span>
-            <span className="flex items-center gap-1.5 text-amber-600">
-              <span className="w-3 h-3 rounded-full bg-amber-500" /> WBGT Stress (°C)
+            <span className="flex items-center gap-1.5 text-amber-700 bg-amber-50/80 px-2.5 py-1 rounded-full border border-amber-100">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> WBGT Stress (°C)
             </span>
           </div>
         </div>
 
-        <div className="h-72 w-full">
+        <div className="w-full h-[300px] sm:h-[340px] min-h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={diurnalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
@@ -145,15 +168,16 @@ export const V2IntelligenceView: React.FC = () => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F3F4" vertical={false} />
-              <XAxis dataKey="hour" tickFormatter={(h) => `${h}:00`} stroke="#9AA0A6" fontSize={11} />
+              <XAxis dataKey="time" stroke="#9AA0A6" fontSize={11} />
               <YAxis domain={['auto', 'auto']} stroke="#9AA0A6" fontSize={11} unit="°C" />
               <Tooltip
                 contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E8EAED', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-                labelFormatter={(h) => `Time: ${h}:00 Local`}
+                labelFormatter={(label) => `Time: ${label} Local`}
+                formatter={(value: any) => [`${value}°C`]}
               />
-              <Area type="monotone" dataKey="surface_temp_c" name="Surface Asphalt" stroke="#EA4335" strokeWidth={2.5} fill="url(#colorSurface)" />
-              <Area type="monotone" dataKey="ambient_temp_c" name="Ambient Air" stroke="#1A73E8" strokeWidth={2} fill="url(#colorAmbient)" />
-              <Area type="monotone" dataKey="wet_bulb_temp_c" name="WBGT Stress" stroke="#FBBC04" strokeWidth={2} fill="url(#colorWbgt)" />
+              <Area type="monotone" dataKey="surface_c" name="Surface Asphalt" stroke="#EA4335" strokeWidth={2.5} fill="url(#colorSurface)" />
+              <Area type="monotone" dataKey="ambient_c" name="Ambient Air" stroke="#1A73E8" strokeWidth={2} fill="url(#colorAmbient)" />
+              <Area type="monotone" dataKey="wbgt_c" name="WBGT Stress" stroke="#FBBC04" strokeWidth={2} fill="url(#colorWbgt)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

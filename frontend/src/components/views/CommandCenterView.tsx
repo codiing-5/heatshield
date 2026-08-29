@@ -179,7 +179,7 @@ export const CommandCenterView: React.FC = () => {
           </div>
           <span className="text-[10px] font-mono text-slate-400">Target: {activeZone}</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <button
             type="button"
             onClick={() => triggerQuickAction('Atomized Transit Misting Cannons')}

@@ -124,16 +124,16 @@ export const AnalyticsView: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-80 w-full pt-4">
+          <div className="w-full h-80 min-h-[300px] pt-2 sm:pt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <RechartsLineChart data={forecastChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <RechartsLineChart data={forecastChartData} margin={{ top: 10, right: 15, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="time" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
                 <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} unit="°C" domain={[24, 55]} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', color: '#fff', fontSize: '12px' }}
                 />
-                <Legend wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }} />
+                <Legend wrapperStyle={{ paddingTop: '10px', fontSize: '12px', userSelect: 'none' }} />
                 <ReferenceLine 
                   y={31.0} 
                   label={{ value: 'Critical WBGT (31°C)', fill: '#ef4444', fontSize: 10, position: 'top' }} 

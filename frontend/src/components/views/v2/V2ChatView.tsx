@@ -30,8 +30,8 @@ export const V2ChatView: React.FC = () => {
     {
       id: 'msg-init',
       sender: 'assistant',
-      agentName: 'HEATSHIELD AI Assistant',
-      text: `Hello! I am your **HEATSHIELD Heat Intelligence Assistant**, directly connected to **FortyGuard** microclimate telemetry across ${activeZone}.\n\nCurrently, surface asphalt temperatures are at **${telemetry.surfaceTemp}°C** with a Wet-Bulb Globe Temperature (WBGT) of **${telemetry.wetBulbTemp}°C** (${telemetry.riskLevel} danger category).\n\nHow can I assist your heat mitigation and operational planning today?`,
+      agentName: 'Thermora AI Assistant',
+      text: `Hello! I am your **Thermora Heat Intelligence Assistant**, directly connected to **FortyGuard** microclimate telemetry across ${activeZone}.\n\nCurrently, surface asphalt temperatures are at **${telemetry.surfaceTemp}°C** with a Wet-Bulb Globe Temperature (WBGT) of **${telemetry.wetBulbTemp}°C** (${telemetry.riskLevel} danger category).\n\nHow can I assist your heat mitigation and operational planning today?`,
       evidence: 'FortyGuard Stream Ingestion (Confidence: 99%, Live Synced)',
       tools: ['query_fortyguard_sensors', 'calculate_wbgt_stress'],
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -86,7 +86,7 @@ export const V2ChatView: React.FC = () => {
       const assistantMessage: Message = {
         id: `ai-${Date.now()}`,
         sender: 'assistant',
-        agentName: res.agent_name || 'HEATSHIELD Multi-Agent Orchestrator',
+        agentName: res.agent_name || 'Thermora Multi-Agent Orchestrator',
         text: res.reply_message,
         evidence: res.evidence_snippet,
         tools: res.recommended_tools,
@@ -100,7 +100,7 @@ export const V2ChatView: React.FC = () => {
       const fallbackMessage: Message = {
         id: `ai-${Date.now()}`,
         sender: 'assistant',
-        agentName: 'HEATSHIELD Multi-Agent Assistant',
+        agentName: 'Thermora Multi-Agent Assistant',
         text: fallbackText,
         evidence: 'FortyGuard Local Telemetry Cache (Confidence: 98%)',
         tools: ['query_fortyguard_sensors', 'calculate_wbgt_stress'],
@@ -124,7 +124,7 @@ export const V2ChatView: React.FC = () => {
       {
         id: 'msg-reset',
         sender: 'assistant',
-        agentName: 'HEATSHIELD AI Assistant',
+        agentName: 'Thermora AI Assistant',
         text: `Conversation cleared. Ready to assist you with real-time heat intelligence in **${activeZone}**.`,
         evidence: 'FortyGuard Ingestion Ready',
         tools: ['query_fortyguard_sensors'],
@@ -184,7 +184,7 @@ export const V2ChatView: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-slate-900">HEATSHIELD AI</h2>
+              <h2 className="text-base font-bold text-slate-900">Thermora AI</h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold g-chip-safe">
                 FORTYGUARD GROUNDED
               </span>
@@ -346,7 +346,7 @@ export const V2ChatView: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Ask HEATSHIELD AI about thermal stress, cooling simulations, or OSHA limits in ${activeZone}...`}
+            placeholder={`Ask Thermora AI about thermal stress, cooling simulations, or OSHA limits in ${activeZone}...`}
             disabled={isThinking}
             className="flex-1 px-4 py-3 rounded-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none text-sm text-slate-900 placeholder:text-slate-400 transition-all"
           />

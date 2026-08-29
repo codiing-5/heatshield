@@ -14,10 +14,10 @@ An intelligent, autonomous multi-agent urban heat resilience platform leveraging
 | Version | Description | Verified Public URL |
 |---|---|---|
 | **Version 1 (Stable)** | Tactical Dark Mode Command Center for municipal incident coordinators | [https://32ef0d9b94e41e1b-111-92-126-156.serveousercontent.com](https://32ef0d9b94e41e1b-111-92-126-156.serveousercontent.com) |
-| **Version 2 (AI Experience)** | Google-inspired clean conversational heat intelligence assistant & agent studio | [https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com](https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com) |
+| **Version 2 (Thermora)** | Thermora conversational heat intelligence assistant & multi-agent studio | [https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com](https://2c057dc2e02890c7-111-92-126-156.serveousercontent.com) |
 
 
-> **Note:** Both Version 1 and Version 2 are simultaneously live and accessible. You can also switch between versions in real-time via the **Version Switcher Pill** in the top navigation bar.
+> **Note:** Both Version 1 and Version 2 (Thermora) are simultaneously live and accessible. You can also switch between versions in real-time via the **Version Switcher Pill** in the top navigation bar.
 
 ---
 
@@ -55,9 +55,9 @@ HEATSHIELD ingests authoritative high-resolution microclimate telemetry from the
 │ Frontend Experiences (React 18 + TypeScript + Vite)                    │
 │                                                                        │
 │ ┌──────────────────────────────────┐ ┌───────────────────────────────┐ │
-│ │ VERSION 1 — STABLE               │ │ VERSION 2 — AI EXPERIENCE     │ │
-│ │ • Tactical Dark Command Center   │ │ • Google-Inspired Clean UI    │ │
-│ │ • 24-Hour Diurnal Curves         │ │ • ChatGPT-Style Assistant     │ │
+│ │ VERSION 1 — STABLE               │ │ VERSION 2 — THERMORA          │ │
+│ │ • Tactical Dark Command Center   │ │ • Clean Thermora Workspace    │ │
+│ │ • 24-Hour Diurnal Curves         │ │ • ChatGPT-Style AI Assistant  │ │
 │ │ • MapLibre GL Vector Map         │ │ • Live AI Agent Status Cards  │ │
 │ │ • Multi-Agent Reason Trace       │ │ • Instant AI Situation Brief  │ │
 │ └──────────────────────────────────┘ └───────────────────────────────┘ │

@@ -32,14 +32,28 @@ if settings.CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+# 4. Include API v1 Router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# Find frontend dist path
-FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist")
-if not os.path.exists(FRONTEND_DIST):
-    FRONTEND_DIST = os.path.abspath(os.path.join(os.getcwd(), "frontend", "dist"))
+# 5. Robust Frontend Dist Resolution
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.dirname(APP_DIR)
+PROJECT_ROOT = os.path.dirname(BACKEND_DIR)
 
-# Mount assets if dist/assets exists
+CANDIDATES = [
+    os.path.join(PROJECT_ROOT, "frontend", "dist"),
+    os.path.abspath(os.path.join(os.getcwd(), "..", "frontend", "dist")),
+    os.path.abspath(os.path.join(os.getcwd(), "frontend", "dist")),
+    os.path.join(BACKEND_DIR, "frontend", "dist"),
+]
+
+FRONTEND_DIST = CANDIDATES[0]
+for candidate in CANDIDATES:
+    if os.path.exists(candidate) and os.path.exists(os.path.join(candidate, "index.html")):
+        FRONTEND_DIST = candidate
+        break
+
+# 6. Mount Static Assets
 assets_dir = os.path.join(FRONTEND_DIST, "assets")
 if os.path.exists(assets_dir):
     app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
@@ -47,31 +61,46 @@ if os.path.exists(assets_dir):
 
 @app.get("/")
 def root(request: Request):
-    accept = request.headers.get("accept", "")
     index_path = os.path.join(FRONTEND_DIST, "index.html")
-    if "text/html" in accept and os.path.exists(index_path):
+    accept = request.headers.get("accept", "")
+    sec_fetch_dest = request.headers.get("sec-fetch-dest", "")
+    
+    # If the request comes from a browser or explicitly asks for HTML, serve the frontend SPA
+    if ("text/html" in accept or sec_fetch_dest == "document") and os.path.exists(index_path):
         return FileResponse(index_path)
-    return {
-        "message": f"Welcome to {settings.PROJECT_NAME} — {settings.PROJECT_DESCRIPTION}",
-        "version": settings.VERSION,
-        "docs": "/docs",
-        "api_v1": settings.API_V1_STR,
-        "health": f"{settings.API_V1_STR}/health",
-    }
+
+    # If index.html doesn't exist or client is an API client / test
+    if not os.path.exists(index_path) or "application/json" in accept or accept == "*/*" or not accept:
+        return {
+            "message": f"Welcome to {settings.PROJECT_NAME} — {settings.PROJECT_DESCRIPTION}",
+            "version": settings.VERSION,
+            "docs": "/docs",
+            "api_v1": settings.API_V1_STR,
+            "health": f"{settings.API_V1_STR}/health",
+        }
+
+    return FileResponse(index_path)
 
 
 @app.get("/{full_path:path}")
 async def serve_spa(full_path: str, request: Request):
-    if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path.startswith("openapi.json"):
+    # Protect API, documentation, and OpenAPI endpoints from SPA fallback
+    if (
+        full_path.startswith("api")
+        or full_path.startswith("docs")
+        or full_path.startswith("redoc")
+        or full_path.startswith("openapi.json")
+    ):
         return JSONResponse(status_code=404, content={"detail": "Not Found"})
-    
+
+    # Check for direct static file in frontend/dist (e.g. /vite.svg, /favicon.ico)
     file_path = os.path.join(FRONTEND_DIST, full_path)
     if os.path.isfile(file_path):
         return FileResponse(file_path)
-    
+
+    # SPA client-side route fallback to index.html
     index_path = os.path.join(FRONTEND_DIST, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    
-    return JSONResponse(status_code=404, content={"detail": "Not Found"})
 
+    return JSONResponse(status_code=404, content={"detail": "Not Found"})

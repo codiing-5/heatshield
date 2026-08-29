@@ -115,10 +115,10 @@ export const V2HomeView: React.FC = () => {
             LIVE HEAT INTEL • FORTYGUARD TELEMETRY SYNCED
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-            HEATSHIELD
+            THERMORA
           </h1>
           <p className="text-base text-slate-600 mt-1 font-normal">
-            AI-Powered Urban Heat Intelligence & Multi-Agent Mitigation Platform
+            Autonomous Urban Heat Intelligence & Multi-Agent Platform
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export const V2HomeView: React.FC = () => {
             className="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-all shadow-sm flex items-center gap-2 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-blue-200" />
-            Ask HEATSHIELD AI
+            Ask Thermora AI
           </button>
 
           <button
@@ -181,7 +181,7 @@ export const V2HomeView: React.FC = () => {
         </div>
 
         {/* Big Temperature Readouts */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 my-6">
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
             <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
               <span>Surface Asphalt</span>
